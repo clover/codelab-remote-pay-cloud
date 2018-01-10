@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans");
+body {
+  font-family: "Open Sans", sans-serif;
+  background-color: #F9F9F9; }
+
+.display {
+  border-radius: 10px;
+  color: #007e3b;
+  width: 400px;
+  padding: 5px 20px;
+  margin: auto;
+  font-size: 3em; }
+
+.numpad {
+  display: flex;
+  flex-direction: column;
+  margin: 15px; }
+
+.numpad--row {
+  display: flex;
+  justify-content: center; }
+
+.numpad--key {
+  background-color: #65AC42;
+  border: 1px solid #ddeed5;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  font-size: 2em;
+  margin: 4px;
+  padding: 15px 45px; }
+
+.numpad--key:active {
+  background: #ddeed5; }
+
+/*# sourceMappingURL=main.css.map */

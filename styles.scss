@@ -1,0 +1,42 @@
+@import 'colors';
+@import 'fonts';
+
+body {
+    font-family: $primary-serif;
+    background-color: #F9F9F9;
+}
+
+.display {
+    border-radius: 10px;
+    color: $clover-green;
+    width: 400px;
+    padding: 5px 20px;
+    margin: auto;
+    font-size: 3em;
+}
+
+.numpad {
+    display: flex;
+    flex-direction: column;
+    margin: 15px;
+}
+
+.numpad--row {
+    display: flex;
+    justify-content: center;
+}
+
+.numpad--key {
+    background-color: $clover-green-web;
+    border: 1px solid $light-clover-green;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    font-size: 2em;
+    margin: 4px;
+    padding: 15px 45px;
+}
+
+.numpad--key:active {
+    background: $light-clover-green;
+}
