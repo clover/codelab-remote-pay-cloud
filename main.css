@@ -1,36 +1,123 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
+.tdshadow {
+  position: relative;
+  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+  -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset; }
+
+.tdshadow:before, .tdshadow:after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  -webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  -moz-box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  top: 10px;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  -moz-border-radius: 100px / 10px;
+  border-radius: 100px / 10px; }
+
+.tdshadow:after {
+  right: 10px;
+  left: auto;
+  -webkit-transform: skew(8deg) rotate(3deg);
+  -moz-transform: skew(8deg) rotate(3deg);
+  -ms-transform: skew(8deg) rotate(3deg);
+  -o-transform: skew(8deg) rotate(3deg);
+  transform: skew(8deg) rotate(3deg); }
+
 body {
   font-family: "Open Sans", sans-serif;
-  background-color: #F9F9F9; }
+  background: url(https://www.pixeden.com/media/k2/galleries/220/001-wood-melamine-subttle-pattern-background-pat.jpg); }
+
+.container {
+  display: flex; }
+
+.pos--container {
+  height: fit-content;
+  border-radius: 10px;
+  width: 300px;
+  padding: 40px;
+  margin: 40px auto;
+  background-color: white; }
 
 .display {
   border-radius: 10px;
-  color: #007e3b;
-  width: 400px;
+  background-color: #949494;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  height: 80px;
+  width: 240px;
   padding: 5px 20px;
   margin: auto;
-  font-size: 3em; }
+  font-size: 3em;
+  -webkit-box-shadow: 0px 2px 0px #777777, 0px 2px 25px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0px 2px 0px #777777, 0px 2px 25px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 2px 0px #777777, 0px 2px 25px rgba(0, 0, 0, 0.7); }
 
 .numpad {
   display: flex;
   flex-direction: column;
-  margin: 15px; }
+  margin-top: 30px; }
 
 .numpad--row {
   display: flex;
   justify-content: center; }
 
 .numpad--key {
-  background-color: #65AC42;
-  border: 1px solid #ddeed5;
+  background-color: #949494;
+  border: 1px solid rgba(221, 238, 213, 0.4);
   border-radius: 10px;
   color: white;
   cursor: pointer;
   font-size: 2em;
-  margin: 4px;
-  padding: 15px 45px; }
+  margin: 6px;
+  padding: 15px 30px;
+  -webkit-box-shadow: 0px 3px 0px #777777, 0px 3px 25px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0px 3px 0px #777777, 0px 3px 25px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 3px 0px #777777, 0px 3px 25px rgba(0, 0, 0, 0.7); }
 
 .numpad--key:active {
-  background: #ddeed5; }
+  background: #949494;
+  -webkit-box-shadow: 0px 1px 0px #777777, 0px 1px 6px rgba(0, 0, 0, 0.9);
+  -moz-box-shadow: 0px 1px 0px #777777, 0px 1px 6px rgba(0, 0, 0, 0.9);
+  box-shadow: 0px 1px 0px #777777, 0px 3px 1px rgba(0, 0, 0, 0.9);
+  position: relative;
+  top: 2px; }
+
+.double {
+  padding: 15px 21px; }
+
+.triple {
+  padding: 15px; }
+
+.key--primary {
+  background-color: #65AC42;
+  -webkit-box-shadow: 0px 6px 0px #65AC42, 0px 6px 25px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0px 6px 0px #65AC42, 0px 6px 25px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 6px 0px #65AC42, 0px 6px 25px rgba(0, 0, 0, 0.7); }
+
+.key--primary:active {
+  background-color: #65AC42;
+  -webkit-box-shadow: 0px 1px 0px #65AC42, 0px 1px 25px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0px 1px 0px #65AC42, 0px 1px 25px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 1px 0px #65AC42, 0px 1px 25px rgba(0, 0, 0, 0.7); }
+
+.key--danger {
+  background-color: #b75454;
+  -webkit-box-shadow: 0px 6px 0px #b75454, 0px 6px 25px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0px 6px 0px #b75454, 0px 6px 25px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 6px 0px #b75454, 0px 6px 25px rgba(0, 0, 0, 0.7); }
+
+.key--danger:active {
+  background-color: #b75454;
+  -webkit-box-shadow: 0px 1px 0px #b75454, 0px 1px 25px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0px 1px 0px #b75454, 0px 1px 25px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 1px 0px #b75454, 0px 1px 25px rgba(0, 0, 0, 0.7); }
 
 /*# sourceMappingURL=main.css.map */
