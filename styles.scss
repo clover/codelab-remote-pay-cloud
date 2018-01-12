@@ -8,15 +8,10 @@ body {
     background:url(https://www.pixeden.com/media/k2/galleries/220/001-wood-melamine-subttle-pattern-background-pat.jpg);
 }
 
-.container {
-    display: flex;
-}
-
 .pos--container {
     height: fit-content;
     border-radius: 10px;
-    width: 300px;
-    padding: 40px;
+    padding: 40px 60px;
     margin: 40px auto;
     background-color: $clover-white;
 }
@@ -25,14 +20,11 @@ body {
     border-radius: 10px;
     background-color: $clover-gray-50;
     color: $clover-white;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
     height: 80px;
-    width: 240px;
+    width: 260px;
     padding: 5px 20px;
     margin: auto;
+    margin-top: 20px;
     font-size: 3em;
      -webkit-box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
     -moz-box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
@@ -40,14 +32,9 @@ body {
 }
 
 .numpad {
-    display: flex;
-    flex-direction: column;
-    margin-top: 30px;
-}
-
-.numpad--row {
-    display: flex;
+    width: 300px;
     justify-content: center;
+    margin-top: 30px;
 }
 
 //http://cssdeck.com/labs/fancy-3d-button
@@ -99,6 +86,7 @@ body {
 
 .key--danger {
     background-color: $clover-red;
+    margin-top: 16px;
     -webkit-box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
     -moz-box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
     box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);

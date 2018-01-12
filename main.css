@@ -32,14 +32,10 @@ body {
   font-family: "Open Sans", sans-serif;
   background: url(https://www.pixeden.com/media/k2/galleries/220/001-wood-melamine-subttle-pattern-background-pat.jpg); }
 
-.container {
-  display: flex; }
-
 .pos--container {
   height: fit-content;
   border-radius: 10px;
-  width: 300px;
-  padding: 40px;
+  padding: 40px 60px;
   margin: 40px auto;
   background-color: white; }
 
@@ -47,27 +43,20 @@ body {
   border-radius: 10px;
   background-color: #949494;
   color: white;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
   height: 80px;
-  width: 240px;
+  width: 260px;
   padding: 5px 20px;
   margin: auto;
+  margin-top: 20px;
   font-size: 3em;
   -webkit-box-shadow: 0px 2px 0px #777777, 0px 2px 25px rgba(0, 0, 0, 0.7);
   -moz-box-shadow: 0px 2px 0px #777777, 0px 2px 25px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 2px 0px #777777, 0px 2px 25px rgba(0, 0, 0, 0.7); }
 
 .numpad {
-  display: flex;
-  flex-direction: column;
+  width: 300px;
+  justify-content: center;
   margin-top: 30px; }
-
-.numpad--row {
-  display: flex;
-  justify-content: center; }
 
 .numpad--key {
   background-color: #949494;
@@ -110,6 +99,7 @@ body {
 
 .key--danger {
   background-color: #b75454;
+  margin-top: 16px;
   -webkit-box-shadow: 0px 6px 0px #b75454, 0px 6px 25px rgba(0, 0, 0, 0.7);
   -moz-box-shadow: 0px 6px 0px #b75454, 0px 6px 25px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 6px 0px #b75454, 0px 6px 25px rgba(0, 0, 0, 0.7); }
