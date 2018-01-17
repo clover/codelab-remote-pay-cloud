@@ -58,6 +58,9 @@ body {
   justify-content: center;
   margin-top: 30px; }
 
+#total {
+  margin-left: 120px; }
+
 .numpad--key {
   background-color: #949494;
   border: 1px solid rgba(221, 238, 213, 0.4);

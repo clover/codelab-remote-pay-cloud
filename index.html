@@ -2,50 +2,51 @@
     <head>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
             crossorigin="anonymous">
-        <link rel="stylesheet" href="main.css"> 
+        <link rel="stylesheet" href="main.css">  
     </head>
     <body>
         <div class="row">
             <div class="pos--container tdshadow">
-                <div class="numpad--key key--primary"> 
+                <div class="numpad--key key--primary" id="key--connect"> 
                     Connect
                 </div>
-                <div class="numpad--key key--danger"> 
+                <div class="numpad--key key--danger" id="key--disconnect"> 
                     Disconnect
                 </div>
             </div>
             <div class="pos--container tdshadow">
                 <div class="display row">
-                    <div class="text-center">
-                        <p> 0.00 </p>
+                    <div>
+                        <p id="total"> 0.00 </p>
                     </div>
                 </div>
                 <div class="numpad row">
                     <div class="numpad--row row">
-                        <div class="numpad--key"> 1 </div>
-                        <div class="numpad--key"> 2 </div>
-                        <div class="numpad--key"> 3 </div>
+                        <div class="numpad--key" id="key--1"> 1 </div>
+                        <div class="numpad--key " id="key--2"> 2 </div>
+                        <div class="numpad--key" id="key--3"> 3 </div>
                     </div>
                     <div class="numpad--row row">
-                        <div class="numpad--key"> 4 </div>
-                        <div class="numpad--key"> 5 </div>
-                        <div class="numpad--key"> 6 </div>
+                        <div class="numpad--key" id="key--4"> 4 </div>
+                        <div class="numpad--key" id="key--5"> 5 </div>
+                        <div class="numpad--key" id="key--6"> 6 </div>
                     </div>
                     <div class="numpad--row row">
-                        <div class="numpad--key"> 7 </div>
-                        <div class="numpad--key"> 8 </div>
-                        <div class="numpad--key"> 9 </div>
+                        <div class="numpad--key" id="key--7"> 7 </div>
+                        <div class="numpad--key" id="key--8"> 8 </div>
+                        <div class="numpad--key" id="key--9"> 9 </div>
                     </div>
                     <div class="numpad--row row">
-                        <div class="numpad--key double"> 00 </div>
-                        <div class="numpad--key"> 0 </div>
-                        <div class="numpad--key triple"> Del </div>
+                        <div class="numpad--key double" id="key--00"> 00 </div>
+                        <div class="numpad--key" id="key--0"> 0 </div>
+                        <div class="numpad--key triple" id="key--del"> Del </div>
                     </div>
                     <div class="numpad--row row">
-                        <div class="numpad--key key--primary"> Charge </div>
+                        <div class="numpad--key key--primary" id="key--charge"> Charge </div>
                     </div>
                 </div>
             </div>
         </div>
+        <script src="./index.js"></script>
     </body>
 </html>
