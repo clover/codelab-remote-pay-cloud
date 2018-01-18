@@ -1,27 +1,4 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
-
-.logo {
-  width: 400px;
-}
-
-.connect-button {
-  background-color: lightgreen;
-  margin: 20px;
-  padding: 10px;
-}
-
-.status {
-  text-align: center;
-  border: 2px solid black;
-  padding: 10px;
-  margin: 20px;
-  border-radius: 10px;
-}
-
-.actions {
-  margin: 20px;
-}
-
 .tdshadow {
   position: relative;
   -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
@@ -54,6 +31,23 @@
 body {
   font-family: "Open Sans", sans-serif;
   background: url(https://www.pixeden.com/media/k2/galleries/220/001-wood-melamine-subttle-pattern-background-pat.jpg); }
+
+.logo {
+  height: 80px;
+  box-sizing: content-box;
+  padding: 24px; }
+
+.logo--container {
+  display: flex;
+  justify-content: center; }
+
+.status {
+  padding: 24px; }
+
+.status--container {
+  background-color: #f1f1f1;
+  border-radius: 15px;
+  margin-top: 20px; }
 
 .pos--container {
   height: fit-content;
@@ -135,5 +129,15 @@ body {
   -webkit-box-shadow: 0px 1px 0px #b75454, 0px 1px 25px rgba(0, 0, 0, 0.7);
   -moz-box-shadow: 0px 1px 0px #b75454, 0px 1px 25px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 1px 0px #b75454, 0px 1px 25px rgba(0, 0, 0, 0.7); }
+
+.key__disabled {
+  background-color: #777777;
+  box-shadow: none;
+  cursor: default; }
+
+.key__disabled:active {
+  background-color: #777777;
+  box-shadow: none;
+  top: 0px; }
 
 /*# sourceMappingURL=main.css.map */

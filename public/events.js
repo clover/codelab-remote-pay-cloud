@@ -1,7 +1,13 @@
 document.addEventListener("DOMContentLoaded", function() {
+
     var displayState = '';
     var numpadKeys = document.querySelectorAll('.numpad--key');
     var total = document.getElementById('total');
+
+    var connectKey = document.getElementById('key--connect');
+    var disconnectKey = document.getElementById('key--disconnect');
+    var chargeKey = document.getElementById('key--charge');
+
     numpadKeys.forEach(function(key) {
         key.addEventListener("click", function() {
             var keyValue = key.id.slice(5, key.id.length)
@@ -40,4 +46,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
         });
     });
+
+    connectKey.addEventListener("click", function() {
+        cloudtest.run();
+    });
+
+    disconnectKey.addEventListener("click", function() {
+        if (disconnectKey.classList.length < 3) {
+            cloudtest.disconnect();
+        }
+    });
+
+    chargeKey.addEventListener("click", function() {
+        if (chargeKey.classList.length < 3) {
+            cloudtest.performSale(displayState);
+        }
+    });
+
 });
