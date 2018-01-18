@@ -1,5 +1,5 @@
 {
-  "name": "cloudtest",
+  "name": "cloudpaytut-mock",
   "version": "1.0.0",
   "description": "test",
   "main": "index.js",
@@ -7,16 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack & webpack-dev-server --hot --inline"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/keius/CloudTest.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/keius/CloudTest/issues"
-  },
-  "homepage": "https://github.com/keius/CloudTest#readme",
   "dependencies": {
     "remote-pay-cloud": "^1.4.2",
     "remote-pay-cloud-api": "^1.4.1",

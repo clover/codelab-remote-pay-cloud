@@ -76,9 +76,71 @@ Once the repository is cloned to your computer, follow these instructions to get
 
 11. As an important side note, make sure to properly dispose of the connector on completion of the action (such as showing a message or completing a sale). A `cleanup()` function is defined already that invokes the `CloverConnector::dispose()` function.
 
-10. Now add a sale listener. This is done by extending the defaultCloverConnectorListener with event handlers for sale actions. We will use a getCloverConnector() function to avoid any bind issues.
-11. Let's make a sale! Create a saleRequest object using the Remote Pay Cloud API, and set an external id, as well as the amount. The saleRequest should have setAutoAcceptSignature(false) since we want to see the signature handling.
-12. Finally, initiate the sale by calling the sale function, passing in the sale request. If everything goes smoothly, you should see instructions on the Clover device to process the payment method.
-13. Congratulations, you made your first sale! Now take a moment to look at the log messages and its contents (you should have requests and responses set in the console.logs)
-14. Make another sale, with the same card/payment method. Take a look at the confirm payment message. You should see a challenges property, which is an array containing any number of potential issues with the transaction. Here you should have a "duplicate payment" message, because we just used the same card!
-15. Now we need to create logic to handle this challenge. One simple way is to create a separate interface to confirm or reject this transaction from the POS. Then, depending on the input, call the acceptPayment, or the rejectPayment connector functions.
+12. Now add a sale listener. This is done by extending the `defaultCloverConnectorListener` with event handlers for sale actions. We will define onSaleResponse, onConfirmPaymentRequest, and onVerifySignatureRequest. Take a look at `CloverConnector::acceptPayment()` and `CloverConnector::acceptSignature()` for more information.
+```javascript
+  var saleListener = Object.assign({}, defaultCloverConnectorListener, {
+    onSaleResponse: function (response) {
+      console.log({message: "Sale complete!", response: response});
+    },
+
+    onConfirmPaymentRequest: function (request) {
+      console.log({message: "Automatically accepting payment", request: request});
+
+      cloverConnector.acceptPayment(request.getPayment());
+    },
+
+    onVerifySignatureRequest: function (request) {
+      console.log({message: "Automatically accepting signature", request: request});
+
+      cloverConnector.acceptSignature(request);
+    }
+  });
+```
+13. Add the listener, similar to step 8, passing in the saleListener.
+
+14. Let's make a sale! Create a [`SaleRequest`]() object using the Remote Pay Cloud API, and set an external id, as well as the amount. We invoke `setAutoAcceptSignature(false)` since we want to see the signature handling.
+```javascript
+  var saleRequest = new sdk.remotepay.SaleRequest();
+  saleRequest.setExternalId(clover.CloverID.getNewId());
+  saleRequest.setAmount(10);
+  saleRequest.setAutoAcceptSignature(false);
+```
+15. Finally, initiate the sale by calling the `CloverConnector::sale()` function, passing in the `saleRequest`. If everything goes smoothly, you should see instructions on the Clover device to process the payment method.
+
+16. Congratulations, you made your first sale! Now take a moment to look at the log messages and its contents (you should have requests and responses set in the console.logs). Learn about a [`SaleResponse`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/messages/SaleResponse.html).
+
+17. Make another sale, with the same card/payment method. Take a look at the confirm payment message in the console. You should see a challenges property, which is an array containing any number of potential issues with the transaction. Here you should have a "duplicate payment" message, because we just used the same card!
+
+18. Now we need to create logic to handle this challenge. One simple way is to create a separate interface to confirm or reject this transaction from the POS. Then, depending on the input, call `CloverConnect:: acceptPayment()`, or the `CloverConnector::rejectPayment()` connector functions. We will also define some more logic for `onSaleResponse`, since rejecting a payment request will not result in a proper sale.
+
+```javascript
+  onSaleResponse: function (response) {
+    console.log({message: "Sale complete!", response: response});
+    if (!response.getIsSale()) {
+      console.log({error: "Response is not a sale!"});
+      updateStatus("Sale failed.")
+    } else {
+      updateStatus("Sale complete!");
+    }
+
+    cleanup();
+  },
+
+  onConfirmPaymentRequest: function (request) {
+    console.log({message: "Processing payment...", request: request});
+    updateStatus("Processing payment...");
+    var challenges = request.getChallenges();
+    if (challenges) {
+      sign = window.confirm(challenges[0].message);
+      if (sign) {
+        cloverConnector.acceptPayment(request.getPayment());
+      } else {
+        cloverConnector.rejectPayment(request.getPayment(), challenges[0]);
+      }
+    } else {
+      console.log({message: "Accepted Payment!"});
+      cloverConnector.acceptPayment(request.getPayment());
+    }
+  },
+```
+19. Congratulations, you have now integrated a web application to a clover device, and are able to show messages and perform a sale. But the Clover Connector is capable of so much more. Here are some additional resources to expand on this project, and start integrating these functionalities into a personal application.
