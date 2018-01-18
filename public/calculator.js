@@ -18,19 +18,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 case keyValue === 'del':
                     displayState = displayState.slice(0, displayState.length - 1);
                     break;
-            
+
                 default:
                     break;
             }
 
             if (displayState.length == 0 || displayState < 1) {
-                total.innerHTML = '0.00';                
+                total.innerHTML = '0.00';
             } else if (displayState.length == 1) {
                 total.innerHTML = '0.0' + displayState;
             } else if (displayState.length == 2) {
-                total.innerHTML = '0.' + displayState; 
+                total.innerHTML = '0.' + displayState;
             } else {
-                total.innerHTML = displayState.slice(0, displayState.length - 2) + '.' + displayState.slice(displayState.length - 2, displayState.length);                        
+                total.innerHTML = displayState.slice(0, displayState.length - 2) + '.' + displayState.slice(displayState.length - 2, displayState.length);
             }
             if (displayState.length >= 4) {
                 total.style.marginLeft = 120 - (27.5 * (displayState.length - 3)) + "px";
@@ -40,6 +40,4 @@ document.addEventListener("DOMContentLoaded", function() {
 
         });
     });
-    console.log(numpadKeys);
 });
-

@@ -1,4 +1,27 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
+
+.logo {
+  width: 400px;
+}
+
+.connect-button {
+  background-color: lightgreen;
+  margin: 20px;
+  padding: 10px;
+}
+
+.status {
+  text-align: center;
+  border: 2px solid black;
+  padding: 10px;
+  margin: 20px;
+  border-radius: 10px;
+}
+
+.actions {
+  margin: 20px;
+}
+
 .tdshadow {
   position: relative;
   -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
