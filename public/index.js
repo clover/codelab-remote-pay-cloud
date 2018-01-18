@@ -9,12 +9,36 @@ CloudTest = function () {
 CloudTest.prototype.run = function () {
 
   // TODO: Instantiate a configuration object
+  
+  let connectorConfiguration = new clover.WebSocketCloudCloverDeviceConfiguration(
+    'com.krustykrab.KrabbyPOS',
+    clover.BrowserWebSocketImpl.createInstance,
+    new clover.ImageUtil(),
+    "https://sandbox.dev.clover.com/",
+    "acda2e1e-84d2-3dd4-fe19-2bce291047a0",
+    new clover.HttpSupport(XMLHttpRequest),
+    "FZX3HYMWZPE54",
+    "9ad2c829-2edc-a36d-b141-0cbe47ce2d59",
+    "friendly_id_yay",
+    true,
+    1000,
+    3000
+  );
 
   // TODO: create a clover connector
 
-  setCloverConnector(); // this will save the connector object that can be retrieved for other actions.
+  let builderConfiguration = {};
+  builderConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
+  let cloverConnectorFactory = clover.CloverConnectorFactoryBuilder.createICloverConnectorFactory(builderConfiguration);
 
+  let cloverConnector = cloverConnectorFactory.createICloverConnector(connectorConfiguration);
+
+  
   // TODO: add the default listener
+
+  cloverConnector.addCloverConnectorListener(defaultCloverConnectorListener);
+  setCloverConnector(cloverConnector); // this will save the connector object that can be retrieved for other actions.  
+  cloverConnector.initializeConnection();
 
 }
 
@@ -50,41 +74,65 @@ CloudTest.prototype.showMessage = function() {
 }
 
 // perform a sale
-CloudTest.prototype.performSale = function () {
-
+CloudTest.prototype.performSale = function (amount) {
+  var saleAmount = amount;
   // create a sale listener (appended to default listener object)
   var saleListener = Object.assign({}, defaultCloverConnectorListener, {
     onSaleResponse: function (response) {
-      // TODO: log message here
+      console.log({ message: "Sale complete!", response: response });
+      if (!response.getIsSale()) {
+        console.log({ error: "Response is not a sale!" });
+        updateStatus("Sale failed.")
+      } else {
+        updateStatus("Sale complete!");
+      }
 
-      // UI
-      updateStatus("Sale complete!");
-
-      // Make sure to properly dispose of the connector
       cleanup();
     },
 
     onConfirmPaymentRequest: function (request) {
-      // TODO: log message here
-
-      // TODO: accept the payment request
-
-      updateStatus("Automatically accepting payment...");
+      console.log({ message: "Processing payment...", request: request });
+      updateStatus("Processing payment...");
+      var challenges = request.getChallenges();
+      if (challenges) {
+        sign = window.confirm(challenges[0].message);
+        if (sign) {
+          cloverConnector.acceptPayment(request.getPayment());
+        } else {
+          cloverConnector.rejectPayment(request.getPayment(), challenges[0]);
+        }
+      } else {
+        console.log({ message: "Accepted Payment!" });
+        cloverConnector.acceptPayment(request.getPayment());
+      }
     },
 
     onVerifySignatureRequest: function (request) {
-      // TODO: log message here
-
-      // TODO: accept the signature
-
-      updateStatus("Automatically accepting signature");
+      console.log({ message: "Automatically accepting signature", request: request });
+      // updateStatus("Automatically accepting signature");
+      cloverConnector.acceptSignature(request);
     }
   });
-  // TODO: add the listener
+  // add the listener
+  cloverConnector.addCloverConnectorListener(saleListener);
 
-  // TODO: create a sale request
+  // create a sale request
+  var saleRequest = new sdk.remotepay.SaleRequest();
+  saleRequest.setExternalId(clover.CloverID.getNewId());
+  saleRequest.setAmount(saleAmount);
+  saleRequest.setAutoAcceptSignature(false);
 
-  // TODO: make the sale request
+  // send the sale request
+  console.log({ message: "Sending sale", request: saleRequest });
+  getCloverConnector().sale(saleRequest);
+}
+
+CloudTest.prototype.disconnect = function () {
+  cleanup();
+}
+
+CloudTest.prototype.toggleAction = function(key) {
+
 }
 
 var getCloverConnector = function () {
@@ -109,11 +157,15 @@ var cleanup = function() {
 }
 
 var toggleActions = function(show) {
-  var actions = document.querySelector('.actions');
+  var disconnectKey = document.getElementById('key--disconnect');
+  var chargeKey = document.getElementById('key--charge');
+
   if (show) {
-    actions.style.display = "block";
+    disconnectKey.classList.remove("key__disabled");
+    chargeKey.classList.remove("key__disabled");
   } else {
-    actions.style.display = "none";
+    disconnectKey.classList.add("key__disabled");
+    chargeKey.classList.add("key__disabled");
   }
 }
 

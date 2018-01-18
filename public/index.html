@@ -7,14 +7,20 @@
         <link rel="stylesheet" href="./assets/main.css">
     </head>
     <body>
-        <img src="./assets/clover_logo.png" class="logo"></img>
-        <h3 class="status">Not connected to your Clover device. Please connect to perform an action.</h3>
+        <div class="row">
+            <div class="col-md-6 logo--container">
+                <img src="./assets/clover_logo.png" class="logo"></img>
+            </div> 
+            <div class="col-md-5 status--container">
+                <h3 class="status"> Not connected to your Clover device. Please connect to perform an action. </h3>
+            </div>
+        </div>
         <div class="row">
             <div class="pos--container tdshadow">
                 <div class="numpad--key key--primary" id="key--connect">
                     Connect
                 </div>
-                <div class="numpad--key key--danger" id="key--disconnect">
+                <div class="numpad--key key--danger key__disabled" id="key--disconnect">
                     Disconnect
                 </div>
             </div>
@@ -46,7 +52,7 @@
                         <div class="numpad--key triple" id="key--del"> Del </div>
                     </div>
                     <div class="numpad--row row">
-                        <div class="numpad--key key--primary" id="key--charge"> Charge </div>
+                        <div class="numpad--key key--primary key__disabled" id="key--charge"> Charge </div>
                     </div>
                 </div>
             </div>
@@ -54,11 +60,6 @@
         <script>
           var cloudtest = new CloudTest();
         </script>
-        <button onclick="cloudtest.run()" class="connect-button">Connect to Device</button>
-        <div class="actions" style="display:none;">
-          <button onclick="cloudtest.showMessage()" class="message-button">Show Message</button>
-          <button onclick="cloudtest.performSale()" class="sale-button">Perform Sale</button>
-        </div>
-        <script src="./calculator.js"></script>
+        <script src="./events.js"></script>
     </body>
 </html>
