@@ -85,13 +85,23 @@ Define a listener (specifically, an [`ICloverConnectorListener`](https://clover.
 
 Add the listener to the connector using [`CloverConnector::addCloverConnectorListener()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#addCloverConnectorListener-com.clover.remote.client.ICloverConnectorListener-), passing in the defaultCloverConnectorListener we just defined.
 
-### Initialize the Connection
-Initialize the connection using [`CloverConnector::initializeConnection()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#initializeConnection--). If everything worked correctly, your status bar will display a ready message!
+### Initialize the connection
+Initialize the connection using [`CloverConnector::initializeConnection()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#initializeConnection--). In the app, click the green connect button. If everything worked correctly, the status bar at the top will display a ready message! You are now able to connect and disconnect from a Clover device.
 
-### Display a Message
-Define a class function `showMessage()` that will use the [`CloverConnector::showMessage()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#showMessage-java.lang.String-) to display a message through the device. To retrieve the connector, a `getCloverConnector()` has been defined that will retrieve the connector that was set in the `run` function. Now you can show any message to the device. Note that this message will not disappear until it is changed, or the device/application is disconnected.
+### Display a message
+Define a class function `showMessage()` that will use the [`CloverConnector::showMessage()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#showMessage-java.lang.String-) to display a message through the device through the "Show Message" button. To retrieve the connector, a `getCloverConnector()` has been defined that will retrieve the connector that was set in the `run` function. Now you can show any message to the device. Note that this message will not disappear until it is changed, or the device/application is disconnected.
 
 As an important side note, make sure to properly dispose of the connector on completion of the action (such as showing a message or completing a sale). A `cleanup()` function is defined already that invokes the [`CloverConnector::dispose()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#dispose--) function.
+
+  ```javascript
+  CloudTest.prototype.showMessage = function() {
+    // This will send a welcome message to the device
+    getCloverConnector().showMessage("Welcome to Clover Connector")
+
+    // Make sure to properly dispose of the connector
+    cleanup();
+  }
+  ```
 
 ### Add a sale listener
 Now add a sale listener. This is done by extending the `defaultCloverConnectorListener` with event handlers for sale actions. We will define onSaleResponse, onConfirmPaymentRequest, and onVerifySignatureRequest. Take a look at [`CloverConnector::acceptPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptPayment-com.clover.sdk.v3.payments.Payment-) and [`CloverConnector::acceptSignature()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptSignature-com.clover.remote.client.messages.VerifySignatureRequest-) for more information.
@@ -104,24 +114,25 @@ Now add a sale listener. This is done by extending the `defaultCloverConnectorLi
     onConfirmPaymentRequest: function (request) {
       console.log({message: "Automatically accepting payment", request: request});
 
-      cloverConnector.acceptPayment(request.getPayment());
+      getCloverConnector().acceptPayment(request.getPayment());
     },
 
     onVerifySignatureRequest: function (request) {
       console.log({message: "Automatically accepting signature", request: request});
 
-      cloverConnector.acceptSignature(request);
+      getCloverConnector().acceptSignature(request);
     }
   });
   ```
 Add the listener, similar to step 8, passing in the saleListener.
 
-### Make a Sale
-Let's make a sale! Create a [`SaleRequest`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/messages/SaleRequest.html) object using the Remote Pay Cloud API, and set an external id, as well as the amount. We invoke `setAutoAcceptSignature(false)` since we want to see the signature handling.
+### Make a sale
+Let's make a sale! Create a [`SaleRequest`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/messages/SaleRequest.html) object using the Remote Pay Cloud API, and set an external id, as well as the amount. The `calculator.js` will have access to the amount on the number pad. We invoke `setAutoAcceptSignature(false)` since we want to see the signature handling.
   ```javascript
+  var saleAmount = amount
   var saleRequest = new sdk.remotepay.SaleRequest();
   saleRequest.setExternalId(clover.CloverID.getNewId());
-  saleRequest.setAmount(10);
+  saleRequest.setAmount(amount);
   saleRequest.setAutoAcceptSignature(false);
   ```
 Finally, initiate the sale by calling the [`CloverConnector::sale()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#sale-com.clover.remote.client.messages.SaleRequest-) function, passing in the `saleRequest`. If everything goes smoothly, you should see instructions on the Clover device to process the payment method.
@@ -153,9 +164,9 @@ Now we need to create logic to handle this challenge. One simple way is to creat
     if (challenges) {
       sign = window.confirm(challenges[0].message);
       if (sign) {
-        cloverConnector.acceptPayment(request.getPayment());
+        getCloverConnector().acceptPayment(request.getPayment());
       } else {
-        cloverConnector.rejectPayment(request.getPayment(), challenges[0]);
+        getCloverConnector().rejectPayment(request.getPayment(), challenges[0]);
       }
     } else {
       console.log({message: "Accepted Payment!"});

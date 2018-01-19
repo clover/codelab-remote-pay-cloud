@@ -8,44 +8,21 @@ CloudTest = function () {
 // define the run function
 CloudTest.prototype.run = function () {
 
-  // TODO: Instantiate a configuration object
-  
-  let connectorConfiguration = new clover.WebSocketCloudCloverDeviceConfiguration(
-    'com.krustykrab.KrabbyPOS',
-    clover.BrowserWebSocketImpl.createInstance,
-    new clover.ImageUtil(),
-    "https://sandbox.dev.clover.com/",
-    "acda2e1e-84d2-3dd4-fe19-2bce291047a0",
-    new clover.HttpSupport(XMLHttpRequest),
-    "FZX3HYMWZPE54",
-    "9ad2c829-2edc-a36d-b141-0cbe47ce2d59",
-    "friendly_id_yay",
-    true,
-    1000,
-    3000
-  );
+  // TODO: create a configuration object
 
-  // TODO: create a clover connector
+  // TODO: create a Clover Connector
 
-  let builderConfiguration = {};
-  builderConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
-  let cloverConnectorFactory = clover.CloverConnectorFactoryBuilder.createICloverConnectorFactory(builderConfiguration);
+  setCloverConnector(cloverConnector); // this will save the connector object that can be retrieved for other actions.
 
-  let cloverConnector = cloverConnectorFactory.createICloverConnector(connectorConfiguration);
+  // TODO: add the default listener (after filling it in)
 
-  
-  // TODO: add the default listener
-
-  cloverConnector.addCloverConnectorListener(defaultCloverConnectorListener);
-  setCloverConnector(cloverConnector); // this will save the connector object that can be retrieved for other actions.  
-  cloverConnector.initializeConnection();
-
+  // TODO: initialize the connection
 }
 
 // create a listener for the default device connection
 var defaultCloverConnectorListener = Object.assign({}, clover.remotepay.ICloverConnectorListener.prototype, {
   onDeviceReady: function (merchantInfo) {
-    // TODO: log message here
+    // TODO log message here
 
     // UI code. It will update the HTML with a status as well as new actions.
     updateStatus("Pairing successfully completed, your Clover device is ready to process requests.");
@@ -53,13 +30,13 @@ var defaultCloverConnectorListener = Object.assign({}, clover.remotepay.ICloverC
   },
 
   onDeviceDisconnected: function () {
-    // TODO: log message here
+    // TODO log message here
 
     toggleActions(false);
   },
 
   onDeviceConnected: function () {
-    // TODO: log message here
+    // TODO log message here
 
     toggleActions(false);
   }
@@ -67,7 +44,7 @@ var defaultCloverConnectorListener = Object.assign({}, clover.remotepay.ICloverC
 
 // show a message on the device
 CloudTest.prototype.showMessage = function() {
-  // TODO: retrieve the connector, and call showMessage();
+  // TODO: retrieve the Clover Connector, and display a message
 
   // Make sure to properly dispose of the connector
   cleanup();
@@ -75,65 +52,22 @@ CloudTest.prototype.showMessage = function() {
 
 // perform a sale
 CloudTest.prototype.performSale = function (amount) {
-  var saleAmount = amount;
-  // create a sale listener (appended to default listener object)
-  var saleListener = Object.assign({}, defaultCloverConnectorListener, {
-    onSaleResponse: function (response) {
-      console.log({ message: "Sale complete!", response: response });
-      if (!response.getIsSale()) {
-        console.log({ error: "Response is not a sale!" });
-        updateStatus("Sale failed.")
-      } else {
-        updateStatus("Sale complete!");
-      }
 
-      cleanup();
-    },
+  // TODO: create a sale listener (appended to default listener object)
 
-    onConfirmPaymentRequest: function (request) {
-      console.log({ message: "Processing payment...", request: request });
-      updateStatus("Processing payment...");
-      var challenges = request.getChallenges();
-      if (challenges) {
-        sign = window.confirm(challenges[0].message);
-        if (sign) {
-          cloverConnector.acceptPayment(request.getPayment());
-        } else {
-          cloverConnector.rejectPayment(request.getPayment(), challenges[0]);
-        }
-      } else {
-        console.log({ message: "Accepted Payment!" });
-        cloverConnector.acceptPayment(request.getPayment());
-      }
-    },
+  // TODO: add the listener
 
-    onVerifySignatureRequest: function (request) {
-      console.log({ message: "Automatically accepting signature", request: request });
-      // updateStatus("Automatically accepting signature");
-      cloverConnector.acceptSignature(request);
-    }
-  });
-  // add the listener
-  cloverConnector.addCloverConnectorListener(saleListener);
+  // TODO: create a saleRequest
 
-  // create a sale request
-  var saleRequest = new sdk.remotepay.SaleRequest();
-  saleRequest.setExternalId(clover.CloverID.getNewId());
-  saleRequest.setAmount(saleAmount);
-  saleRequest.setAutoAcceptSignature(false);
-
-  // send the sale request
-  console.log({ message: "Sending sale", request: saleRequest });
-  getCloverConnector().sale(saleRequest);
+  // TODO: Send the sale request
 }
+
 
 CloudTest.prototype.disconnect = function () {
   cleanup();
 }
 
-CloudTest.prototype.toggleAction = function(key) {
-
-}
+// KEEP: Helper functions.
 
 var getCloverConnector = function () {
   return this.cloverConnector;
