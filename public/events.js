@@ -1,7 +1,13 @@
 document.addEventListener("DOMContentLoaded", function() {
+
     var displayState = '';
     var numpadKeys = document.querySelectorAll('.numpad--key');
     var total = document.getElementById('total');
+
+    var connectKey = document.getElementById('key--connect');
+    var disconnectKey = document.getElementById('key--disconnect');
+    var chargeKey = document.getElementById('key--charge');
+
     numpadKeys.forEach(function(key) {
         key.addEventListener("click", function() {
             var keyValue = key.id.slice(5, key.id.length)
@@ -18,19 +24,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 case keyValue === 'del':
                     displayState = displayState.slice(0, displayState.length - 1);
                     break;
-            
+
                 default:
                     break;
             }
 
             if (displayState.length == 0 || displayState < 1) {
-                total.innerHTML = '0.00';                
+                total.innerHTML = '0.00';
             } else if (displayState.length == 1) {
                 total.innerHTML = '0.0' + displayState;
             } else if (displayState.length == 2) {
-                total.innerHTML = '0.' + displayState; 
+                total.innerHTML = '0.' + displayState;
             } else {
-                total.innerHTML = displayState.slice(0, displayState.length - 2) + '.' + displayState.slice(displayState.length - 2, displayState.length);                        
+                total.innerHTML = displayState.slice(0, displayState.length - 2) + '.' + displayState.slice(displayState.length - 2, displayState.length);
             }
             if (displayState.length >= 4) {
                 total.style.marginLeft = 120 - (27.5 * (displayState.length - 3)) + "px";
@@ -40,6 +46,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
         });
     });
-    console.log(numpadKeys);
-});
 
+    connectKey.addEventListener("click", function() {
+        cloudtest.run();
+    });
+
+    disconnectKey.addEventListener("click", function() {
+        if (disconnectKey.classList.length < 3) {
+            cloudtest.disconnect();
+        }
+    });
+
+    chargeKey.addEventListener("click", function() {
+        if (chargeKey.classList.length < 3) {
+            cloudtest.performSale(displayState);
+        }
+    });
+
+});
