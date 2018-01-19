@@ -12,11 +12,11 @@ This repository contains a tutorial for building a web application that uses [`C
 Once the repository is cloned to your computer, follow these instructions to get started with Clover's Remote Pay Cloud.
 
 ### Setup
-In the root project directory, run `npm install`. This will install `webpack` and `webpack-dev-server`, along with Clover's `remote-pay-cloud` and `remote-pay-cloud-api` libraries that contains the modules needed connect to the device.
+In the root project directory, run `npm install`. This will install `webpack` and `webpack-dev-server`, along with Clover's `remote-pay-cloud` and `remote-pay-cloud-api` libraries that contain the modules needed connect to the device.
 
 Run `npm run build` to start webpack dev server, which will bundle your files and enable hot reloading. You can view the app on [http://localhost:8080](http://localhost:8080). Ignore the CloudTest error, you will define it soon.
 
-Let's define a class, called `CloudTest`, with a class function called `run` that will initialize the connection to the device. This is one way to organize the different functions we will implement for the integration.
+Define a class, called `CloudTest`, with a class function called `run` that will initialize the connection to the device. This is one way to organize the different functions to implement for the integration.
 ```javascript
 CloudTest = function () {
 }
@@ -54,7 +54,7 @@ First, create a [`CloverConnectorConfiguration`](https://clover.github.io/remote
   ```
 
 ### Create a Clover Connector
-Create a [`CloverConnector`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html) object. For this we will need to define a configuration for the [`builder`](http://clover.github.io/remote-pay-cloud/1.4.0/classes/_remote_client_cloverconnectorfactorybuilder_.cloverconnectorfactorybuilder.html), and then finally create the connector using our previously defined connector configuration.
+Create a [`CloverConnector`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html) object. For this you will need to define a configuration for the [`builder`](http://clover.github.io/remote-pay-cloud/1.4.0/classes/_remote_client_cloverconnectorfactorybuilder_.cloverconnectorfactorybuilder.html), and then finally create the connector using your previously defined connector configuration.
   ```javascript
   var builderConfiguration = {}; // we will define a builder configuration object here
 
@@ -66,7 +66,7 @@ Create a [`CloverConnector`](https://clover.github.io/remote-pay-java/1.4.0/docs
   ```
 
 ### Add a listener to the Clover Connector
-Define a listener (specifically, an [`ICloverConnectorListener`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/ICloverConnectorListener.html), as we are writing over predefined events on the CloverConnector interface) for the default connector that will handle the connection to the device. For now, it will handle when the device is connected, ready to process requests, and disconnected. We will define this outside of the initial connection function as we will need it to define a sale listener in a separate class function.
+Define a listener (specifically, an [`ICloverConnectorListener`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/ICloverConnectorListener.html), as you are writing over predefined events on the CloverConnector interface) for the default connector that will handle the connection to the device. For now, it will handle when the device is connected, ready to process requests, and disconnected. You will define this outside of the initial connection function as you will need it to define a sale listener in a separate class function.
   ```javascript
   var defaultCloverConnectorListener = Object.assign({}, clover.remotepay.ICloverConnectorListener.prototype, {
     onDeviceReady: function (merchantInfo) {
@@ -83,7 +83,7 @@ Define a listener (specifically, an [`ICloverConnectorListener`](https://clover.
   });
   ```
 
-Add the listener to the connector using [`CloverConnector::addCloverConnectorListener()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#addCloverConnectorListener-com.clover.remote.client.ICloverConnectorListener-), passing in the defaultCloverConnectorListener we just defined.
+Add the listener to the connector using [`CloverConnector::addCloverConnectorListener()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#addCloverConnectorListener-com.clover.remote.client.ICloverConnectorListener-), passing in the defaultCloverConnectorListener you just defined.
 
 ### Initialize the connection
 Initialize the connection using [`CloverConnector::initializeConnection()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#initializeConnection--). In the app, click the green connect button. If everything worked correctly, the status bar at the top will display a ready message! You are now able to connect and disconnect from a Clover device.
@@ -104,7 +104,7 @@ As an important side note, make sure to properly dispose of the connector on com
   ```
 
 ### Add a sale listener
-Now add a sale listener. This is done by extending the `defaultCloverConnectorListener` with event handlers for sale actions. We will define onSaleResponse, onConfirmPaymentRequest, and onVerifySignatureRequest. Take a look at [`CloverConnector::acceptPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptPayment-com.clover.sdk.v3.payments.Payment-) and [`CloverConnector::acceptSignature()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptSignature-com.clover.remote.client.messages.VerifySignatureRequest-) for more information.
+Now add a sale listener. This is done by extending the `defaultCloverConnectorListener` with event handlers for sale actions. You will define onSaleResponse, onConfirmPaymentRequest, and onVerifySignatureRequest. Take a look at [`CloverConnector::acceptPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptPayment-com.clover.sdk.v3.payments.Payment-) and [`CloverConnector::acceptSignature()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptSignature-com.clover.remote.client.messages.VerifySignatureRequest-) for more information.
   ```javascript
   var saleListener = Object.assign({}, defaultCloverConnectorListener, {
     onSaleResponse: function (response) {
@@ -127,7 +127,7 @@ Now add a sale listener. This is done by extending the `defaultCloverConnectorLi
 Add the listener, similar to step 8, passing in the saleListener.
 
 ### Make a sale
-Let's make a sale! Create a [`SaleRequest`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/messages/SaleRequest.html) object using the Remote Pay Cloud API, and set an external id, as well as the amount. The `calculator.js` will have access to the amount on the number pad. We invoke `setAutoAcceptSignature(false)` since we want to see the signature handling.
+Time to make a sale! Create a [`SaleRequest`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/messages/SaleRequest.html) object using the Remote Pay Cloud API, and set an external id, as well as the amount. The `calculator.js` will have access to the amount on the number pad. Invoke `setAutoAcceptSignature(false)` since we want to see the signature handling.
   ```javascript
   var saleAmount = amount
   var saleRequest = new sdk.remotepay.SaleRequest();
@@ -142,7 +142,7 @@ Congratulations, you made your first sale! Now take a moment to look at the log 
 
 Make another sale, with the same card/payment method. Take a look at the confirm payment message in the console. You should see a challenges property, which is an array containing any number of potential issues with the transaction. Here you should have a "duplicate payment" message, because we just used the same card!
 
-Now we need to create logic to handle this challenge. One simple way is to create a separate interface to confirm or reject this transaction from the POS. Then, depending on the input, call [`CloverConnect:: acceptPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptPayment-com.clover.sdk.v3.payments.Payment-), or the [`CloverConnector::rejectPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#rejectPayment-com.clover.sdk.v3.payments.Payment-com.clover.remote.Challenge-) connector functions. We will also define some more logic for `onSaleResponse`, since rejecting a payment request will not result in a proper sale.
+Now we need to create logic to handle this challenge. One simple way is to create a separate interface to confirm or reject this transaction from the POS. Then, depending on the input, call [`CloverConnect:: acceptPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptPayment-com.clover.sdk.v3.payments.Payment-), or the [`CloverConnector::rejectPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#rejectPayment-com.clover.sdk.v3.payments.Payment-com.clover.remote.Challenge-) connector functions. You will also define some more logic for `onSaleResponse`, since rejecting a payment request will not result in a proper sale.
 
   ```javascript
   onSaleResponse: function (response) {
