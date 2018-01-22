@@ -1,6 +1,6 @@
 # Clover Remote Pay Cloud Tutorial
 
-This repository contains a tutorial for building a web application that uses [`CloverConnector`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html) to connect to a Clover device and perform basic operations over cloud.
+This repository contains a tutorial for building a web application that uses [`CloverConnector`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html) to connect to a Clover device and perform basic operations over cloud. The Clover Connector SDK provides a consolidated asynchronous interface that enables your point-of-sale (POS) software to interact with Clover’s customer-facing payment devices.
 
 ### Prerequisites
 * Read the [Overview of the Clover Platform](https://docs.clover.com/build/architecture/), including the [Developer Guidelines](https://docs.clover.com/build/developer-guidelines/).
@@ -32,7 +32,7 @@ To use Remote Pay Cloud, you will also need access to your Remote Application ID
   * API token can be retrieved with [OAuth 2.0](https://docs.clover.com/build/oauth-2-0/)
   * merchant ID will be displayed on the url for a [merchant page](https://docs.clover.com/build/merchant-id-and-api-token-for-development/)
   * device ID can be retrieved by making a GET request to
- `https://{clover_server}/v3/merchants/{your_merchant_id}/devices?access_token={your_api_token}`
+ `https://{clover_server}/v3/merchants/{your_merchant_id}/devices?access_token={your_api_token}`. It will be the `id` property in the first object of `elements`.
   * clover server will be the base url for the server (e.g. `https://www.clover.com, https://sandbox.dev.clover.com/`)
 
 First, create a [`CloverConnectorConfiguration`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverDeviceConfiguration.html). Use the parameters from the previous step. Keep the other default parameters for now.
