@@ -1,22 +1,55 @@
 # Clover Remote Pay Cloud Tutorial
 
-This repository contains a tutorial for building a web application that uses [`CloverConnector`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html) to connect to a Clover device and perform basic operations over cloud. The Clover Connector SDK provides a consolidated asynchronous interface that enables your point-of-sale (POS) software to interact with Clover’s customer-facing payment devices.
+## Before We Start
+
+### What We're Building
+
+Today, we're going to integrate a browser-based Point of Sale (POS) system with a Clover Mini.
+
+We've already built a simple UI of the POS for you. However, in its current state, the POS cannot connect to a Clover Mini, and the buttons do nothing. In this tutorial, we will be building that functionality.
+
+It is important to complete this tutorial in its entirety. We will be learning both how to build an integration as well as implementation best practices, so you can avoid very common mistakes, and ship code to production with confidence.
+
+This tutorial uses [`CloverConnector`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html) to connect to a Clover device and perform operations over the cloud. The Clover Connector SDK provides a consolidated asynchronous interface for your POS to integrate with Clover's customer-facing payment devices.
 
 ### Prerequisites
-* Read the [Overview of the Clover Platform](https://docs.clover.com/build/architecture/), including the [Developer Guidelines](https://docs.clover.com/build/developer-guidelines/).
-* [Set up a developer account](https://www.clover.com/developers) (including your test merchant settings).
-* [Ordered a Clover Developer Kit (DevKit)](https://cloverdevkit.com/) and [set it up](https://docs.clover.com/build/devkit/).
-* Installed the Cloud Pay Display app on the Clover device.
-* Installed NPM on your computer.
 
-Once the repository is cloned to your computer, follow these instructions to get started with Clover's Remote Pay Cloud.
+We'll assume some familiarity with HTML and JavaScript, but you should be able to follow along even if you haven't used them before.
 
-### Setup
-In the root project directory, run `npm install`. This will install `webpack` and `webpack-dev-server`, along with Clover's `remote-pay-cloud` and `remote-pay-cloud-api` libraries that contain the modules needed connect to the device.
+We are keeping this tutorial agnostic of any frontend JavaScript framework, so some adaptation may be required to implement the same behavior into your own POS.
 
-Run `npm run build` to start webpack dev server, which will bundle your files and enable hot reloading. You can view the app on [http://localhost:8080](http://localhost:8080). Ignore the CloudTest error, you will define it soon.
+We recommend reading an [Overview of the Clover Platform](https://docs.clover.com/build/architecture/), including the [Developer Guidelines](https://docs.clover.com/build/developer-guidelines/).
+
+You will need to [order a Clover Developer Kit (DevKit)](https://cloverdevkit.com/) and [set it up](https://docs.clover.com/build/devkit/). An emulator cannot be used, because our Secure Payments application relies on certain aspects of our hardware. Currently, the Clover Mini, Mobile, and Flex are eligible for semi-integration.
+
+Our JavaScript Clover Connector SDK is distributed as an npm package. If you do not already have npm installed, [install it](https://www.npmjs.com/get-npm).
+
+You will need to [set up a Sandbox developer account](https://sandbox.dev.clover.com/developers) and create your test merchant.
+
+### How to Follow Along
+
+You should keep this document open to follow along while completing the tutorial in your favorite text editor. As you progress, making and saving JavaScript changes, the POS will hot-reload in your browser of choice.
+
+### Help, I'm Stuck!
+
+If you get stuck, check out Clover's [Community support resources](https://community.clover.com/). If you don't find someone with the same question, post a new one, and we'll help you out.
+
+With this out of the way, let's get started!
+
+__________
+
+## Setup
+
+After you have completed setup of your Clover DevKit, find and install the **Cloud Pay Display** application from the App Market.
+
+`git clone https://github.com/Tulen/cloudpaytut-mock.git` to clone this repository locally. `cd cloudpaytut-mock` to navigate to the project's root directory, and then run `npm install`. This will install `webpack` and `webpack-dev-server`, along with Clover's `remote-pay-cloud` and `remote-pay-cloud-api` libraries are needed to connect to and communicate with the device.
+
+Run `npm run build` to start webpack-dev-server, which will bundle your files and enable hot reloading. Open a new browser tab and view your POS at [http://localhost:8080](http://localhost:8080). Ignore the CloudTest error, you will define it soon.
+
+## Getting Started
 
 Define a class, called `CloudTest`, with a class function called `run` that will initialize the connection to the device. This is one way to organize the different functions to implement for the integration.
+
 ```javascript
 CloudTest = function () {
 }

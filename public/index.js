@@ -2,8 +2,8 @@ var clover = require("remote-pay-cloud");
 var sdk = require("remote-pay-cloud-api");
 
 // define the class
-CloudTest = function () {
-}
+var CloudTest = function () {
+};
 
 // define the run function
 CloudTest.prototype.run = function () {
@@ -17,7 +17,7 @@ CloudTest.prototype.run = function () {
   // TODO: add the default listener (after filling it in)
 
   // TODO: initialize the connection
-}
+};
 
 // create a listener for the default device connection
 var defaultCloverConnectorListener = Object.assign({}, clover.remotepay.ICloverConnectorListener.prototype, {
@@ -48,7 +48,7 @@ CloudTest.prototype.showMessage = function() {
 
   // Make sure to properly dispose of the connector
   cleanup();
-}
+};
 
 // perform a sale
 CloudTest.prototype.performSale = function (amount) {
@@ -60,18 +60,18 @@ CloudTest.prototype.performSale = function (amount) {
   // TODO: create a saleRequest
 
   // TODO: Send the sale request
-}
+};
 
 
 CloudTest.prototype.disconnect = function () {
   cleanup();
-}
+};
 
 // KEEP: Helper functions.
 
 var getCloverConnector = function () {
   return this.cloverConnector;
-}
+};
 
 var setCloverConnector = function (cloverConnector) {
   this.cloverConnector = cloverConnector;
@@ -80,15 +80,15 @@ var setCloverConnector = function (cloverConnector) {
 var updateStatus = function (newStatus) {
   var currentStatus = document.querySelector('.status');
   currentStatus.innerHTML = newStatus;
-}
+};
 
 var cleanup = function() {
   getCloverConnector().dispose();
 
   // UI
   toggleActions(false);
-  updateStatus("Not connected to your Clover device. Please connect to perform an action.")
-}
+  updateStatus("Not connected to your Clover device. Please connect to perform an action.");
+};
 
 var toggleActions = function(show) {
   var disconnectKey = document.getElementById('key--disconnect');
@@ -101,6 +101,6 @@ var toggleActions = function(show) {
     disconnectKey.classList.add("key__disabled");
     chargeKey.classList.add("key__disabled");
   }
-}
+};
 
 module.exports = CloudTest;
