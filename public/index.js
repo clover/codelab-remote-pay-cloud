@@ -2,7 +2,7 @@ var clover = require("remote-pay-cloud");
 var sdk = require("remote-pay-cloud-api");
 
 // define the class
-var CloudTest = function () {
+CloudTest = function () {
 };
 
 // define the run function
