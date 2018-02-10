@@ -217,7 +217,7 @@ We now have all of the data required to initialize a connection, so let's make t
 
 ```diff
 CloudTest.prototype.connect = function () {
-+ var cloverConnector = new clover.CloverConnectorFactory().createICloverConnector({
++ this.cloverConnector = new clover.CloverConnectorFactory().createICloverConnector({
 +   "merchantId": this.merchant_id,
 +   "oauthToken": this.access_token,
 +   "clientId": this.client_id,
@@ -226,16 +226,265 @@ CloudTest.prototype.connect = function () {
 +   "deviceSerialId": document.getElementById("select--clover-device-serials").value
 + });
 + 
-+ cloverConnector.initializeConnection();
++ this.cloverConnector.initializeConnection();
+};
+```
+
+Under the hood, using the `remote-pay-cloud` SDK, this code will instantiate a WebSocket connection. As such, to follow WebSocket best practices, we need to properly dispose of resources the user navigates to a different page, refreshes the current page, or closes the tab/window. [window.onbeforeunload](https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload) is the proper `WindowEventHandler` to handle all of these events.
+
+```diff
+CloudTest.prototype.connect = function () {
+  this.cloverConnector = new clover.CloverConnectorFactory().createICloverConnector({
+    "merchantId": this.merchant_id,
+    "oauthToken": this.access_token,
+    "clientId": this.client_id,
+    "domain": this.targetCloverDomain,
+    "remoteApplicationId": this.remoteApplicationId,
+    "deviceSerialId": document.getElementById("select--clover-device-serials").value
+  });
+  
++ this.setDisposalHandler();
+  this.cloverConnector.initializeConnection();
 };
 
++ CloudTest.prototype.setDisposalHandler = function() {
++   window.onbeforeunload = function(event) {
++     try {
++       this.cloverConnector.dispose();
++     } catch (e) {
++       console.error(e);
++     }
++   }.bind(this);
++ };
 ```
 
 Let the webpage hot reload, select the device serial you would like to connect to, and then press the 'Connect' button. You should now see Cloud Pay Display launch on the device, indicating that we have successfully paired devices. Congratulations!
 
 TODO: "Did Cloud Pay Display not launch? Common troubleshooting here." - link to common mistakes. e.g., Device not connected to the internet? Something else? Blah blah blah? If your issue is not resolved by these common mistakes, and you are still unable to connect to your Clover device, please post a question on our [Clover Developer Community](https://community.clover.com/).
 
+### Implement a CloverConnectorListener
 
+We canonically refer to the WebSocket connection we've now created as the `cloverConnector` API. In order to send data from your POS to the Clover device, you will invoke methods on the `cloverConnector`. You have already become familiar with `cloverConnector.initializeConnection()`.
+
+However, one-way communication is not enough. The device will also need to send payloads of data to your POS through the same WebSocket connection. You'll need to implement a `CloverConnectorListener` to respond to events, keep track of the device's state, and know if transactions succeeded or failed. Our POS will receive information about the Clover device by implementing a number of different callbacks.
+
+We will set a `CloverConnectorListener` on our `cloverConnector` instance before initializing the connection. The `remote-pay-cloud` SDK will hook into these `CloverConnectorListener` callbacks at various stages of the device's lifecycle.
+
+It can also be useful to set a pointer to the `cloverConnector` on the `CloverConnectorListener` instance, so that `cloverConnector` methods can be easily invoked from directly within a `CloverConnectorListener` callback. We will first implement the `onDeviceConnected` and `onDeviceReady` callbacks, which get invoked sequentially during the device pairing process. In this example, we will simply update the UI to indicate that device pairing has been successful. We will also implement the `onDeviceError` callback, allowing us to render any Clover error messages to the user.
+
+```diff
++ this.setCloverConnectorListener(this.cloverConnector);
+  this.setDisposalHandler();
+  this.cloverConnector.initializeConnection();
+};
++
++ CloudTest.prototype.setCloverConnectorListener = function(cloverConnector) {
++   var CloverConnectorListener = function(connector) {
++     clover.remotepay.ICloverConnectorListener();
++     this.cloverConnector = connector;
++   };
++   
++   CloverConnectorListener.prototype = Object.create(clover.remotepay.ICloverConnectorListener.prototype);
++   CloverConnectorListener.prototype.constructor = CloverConnectorListener;
++   
++   CloverConnectorListener.prototype.onDeviceConnected = function() {
++     document.getElementById("status-message").innerHTML = "Device is connected!";
++   };
++   
++   CloverConnectorListener.prototype.onDeviceReady = function() {
++     document.getElementById("status-message").innerHTML = "Device is connected and ready!";
++   };
++   
++   CloverConnectorListener.prototype.onDeviceError = function(deviceErrorEvent) {
++     window.alert(`Message: ${deviceErrorEvent.getMessage()}`);
++   };
++   
++   this.cloverConnectorListener = new CloverConnectorListener(cloverConnector);
++   cloverConnector.addCloverConnectorListener(this.cloverConnectorListener);
++ };
+```
+
+After the page refreshes, reconnect to your device, and "Device is connected and ready!" should be rendered. `onDeviceConnected` and `onDeviceReady` are occasionally invoked very rapidly, to the point where you may never see the "Device is connected!" message on the DOM.
+
+**Important:** *Never* invoke a `cloverConnector` method from within the `CloverConnectorListener#onDeviceReady` callback. This callback is **not** guaranteed to fire only once, and unintended consequences can arise if you start multiple `TransactionRequests` concurrently.
+
+### Starting our first Sale
+
+We are now ready to start our first Sale, one of the three transaction types that Clover semi-integration supports. You can find more detailed information about all of our transaction types here. Initiating a Sale requires you to generate a `SaleRequest` instance, which inherits from our `TransactionRequest` class. We'll reference both in this section. // TODO: replace with the proper link to our docs after https://jira.dev.clover.com/browse/DS-63 has been completed and published.
+
+We already have a 'Charge' button, but it does nothing. Let's add some functionality.
+
+In `events.js`, we'll add functionality to the `onclick` handler, parsing the `total` into an `int`, and attempting to start a Sale:
+
+```diff
+chargeKey.addEventListener("click", function() {
++ var amount = parseInt(document.getElementById("total").innerHTML.replace(".", ""));
++ // 'amount' is an int of the number of pennies to charge
++ if (amount > 0) {
++   cloudtest.performSale(amount);
++ }
+});
+```
+
+We'll interact with the actual `cloverConnector` API in `index.js`. Note that we are setting an `ExternalId` on our `SaleRequest`. An `ExternalId` serves a number of different purposes:
+1. Your POS can use it to associate your `Order` and `Payment` models with Clover's `Payment` objects.
+2. It helps prevent accidental duplicate charges. The Clover device will reject back-to-back `TransactionRequests` that have identical `ExternalId`s.
+3. If you use universally unique `ExternalId`s on every transaction, they can be used as a last resort to help Clover Engineering triage issues that may arise with individual transactions. Please note that providing a Clover `PaymentId` will resolve issues quicker. However, there can be rare instances when your POS only knows the `ExternalId` of a `TransactionRequest`, but not its Clover `PaymentId` (e.g., if connectivity between the POS and Clover device is dropped mid-transaction).
+
+For these reasons, **you should persist both ExternalIds and Clover Payments in your database.** We also highly recommend making `ExternalId`s universally unique. If your POS is not already generating unique Payment IDs, our SDK provides a utility method to generate a 13-digit alphanumeric UUID. While we can't guarantee universal uniqueness, our utility method has only a 1/1,180,591,620,685,165,462,528 chance of collision.
+
+The `ExternalId` is required on every `TransactionRequest`, and must have a length between 1 and 32.
+
+```diff
+CloudTest.prototype.performSale = function (amount) {
++ var saleRequest = new clover.remotepay.SaleRequest();
++ saleRequest.setAmount(amount);
++ saleRequest.setExternalId(clover.CloverID.getNewId());
++ this.cloverConnector.sale(saleRequest);
+};
+```
+
+After the webpage reloads, re-establish a connection to the device, enter an amount into the calculator, and press 'Charge'. You should see instructions on the Clover device to process your first card transaction. Swipe/dip/tap to pay, and follow the on-screen instructions.
+
+After you enter your signature on-screen, you might notice the device is "stuck" on this screen. However, this is the intended behavior. The Clover device is waiting for our POS to either approve or reject the customer's signature. The POS, rather than the Clover device, needs to handle this approval/denial, as semi-integrated Clover devices are frequently utilized as being customer-facing only.
+
+![](public/assets/images/verifyingSignature.png)
+
+Exit Cloud Pay Display by touching the four corners of the screen, and let's write some more code. We don't want any of our merchants to get "stuck" at this screen.
+
+If you never saw this screen, you'll need to adjust your merchant level settings, and initiate another Sale to reach this point. // TODO: link to a page that talks about merchant-level signature settings in depth.
+
+### Handling signature verification
+
+In this section, we'll render the signature captured on the Clover device onto our POS's DOM, and provide the user with the option of either accepting or denying it. Let's start by providing a `<canvas>` element which we can write our signature to.
+
+In `index.html`:
+
+```diff
+<div class="row">
+    <div class="col-md-6 logo--container">
+        <img src="./assets/clover_logo.png" class="logo"></img>
+    </div> 
+    <div class="col-md-5 status--container">
+        <h3 class="status" id="status-message"> Not connected to your Clover device. Please connect to perform an action. </h3>
+    </div>
+</div>
++ 
++ <div class="row">
++   <div class="col-xs-12">
++     <canvas ref="canvas" width="300" height="175" id="verify-signature-canvas"/>
++   </div> 
++ </div>
+```
+
+Next, we'll need to implement the `CloverConnectorListener#onVerifySignatureRequest` callback that gets invoked at this stage of the transaction lifecycle. In that method, we will render the signature on the `<canvas>` element we just created, and then provide the merchant with the option of either approving or denying the signature.
+
+First, we'll draw the signature. In `index.js`:
+
+```diff
+CloverConnectorListener.prototype.onDeviceError = function(deviceErrorEvent) {
+  window.alert(`Message: ${deviceErrorEvent.getMessage()}`);
+};
+
++ CloverConnectorListener.prototype.onVerifySignatureRequest = function(verifySignatureRequest) {
++   // clear any previous signatures, draw the current signature
++   var canvas = document.getElementById("verify-signature-canvas");
++   var ctx = canvas.getContext('2d');
++   ctx.clearRect(0, 0, canvas.width, canvas.height);
++   ctx.scale(0.25, 0.25);
++   ctx.beginPath();
++   for (var strokeIndex = 0; strokeIndex < verifySignatureRequest.getSignature().strokes.length; strokeIndex++) {
++     var stroke = verifySignatureRequest.getSignature().strokes[strokeIndex];
++     ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
++     for (var pointIndex = 1; pointIndex < stroke.points.length; pointIndex++) {
++         ctx.lineTo(stroke.points[pointIndex].x, stroke.points[pointIndex].y);
++         ctx.stroke();
++     }
++   }
++   // reset the scale so clearing the previous signature will function as intended
++   ctx.scale(4, 4);
++ };
+```
+
+Then, we'll present the merchant with the option of accepting or rejecting the transaction, based on verifying the signature. Due to the asynchronous nature of drawing on an html canvas, we use `setTimeout()` to enqueue this code in the call stack. Otherwise, the confirm dialog will appear before the signature has been drawn.
+
+```diff
+CloverConnectorListener.prototype.onVerifySignatureRequest = function(verifySignatureRequest) {
+  // clear any previous signatures, draw the current signature
+  var canvas = document.getElementById("verify-signature-canvas");
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.scale(0.25, 0.25);
+  ctx.beginPath();
+  for (var strokeIndex = 0; strokeIndex < verifySignatureRequest.getSignature().strokes.length; strokeIndex++) {
+    var stroke = verifySignatureRequest.getSignature().strokes[strokeIndex];
+    ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+    for (var pointIndex = 1; pointIndex < stroke.points.length; pointIndex++) {
+        ctx.lineTo(stroke.points[pointIndex].x, stroke.points[pointIndex].y);
+        ctx.stroke();
+    }
+  }
+  // reset the scale so clearing the previous signature will function as intended
+  ctx.scale(4, 4);
++  
++  // present the merchant with the option of approving or denying the signature
++  
++  // due to the asynchronous nature of drawing on an html canvas, we need to
++  // enqueue this in the message queue to be executed when the call stack is
++  // empty. otherwise, the confirm dialog will appear before the signature
++  // has rendered.
++  setTimeout(function() {
++    if (confirm("Would you like to approve this signature?")) {
++      // accept or reject, based on the merchant's input
++      this.cloverConnector.acceptSignature(verifySignatureRequest);
++    } else {
++      this.cloverConnector.rejectSignature(verifySignatureRequest);
++    }
++  }.bind(this), 0);
+};
+```
+
+Refresh the webpage, reconnect to the Clover device, initiate another Sale, and accept the signature. You have now completed your first `remote-pay-cloud` Sale! 🎉 
+
+But don't ship this code to production just yet. Start *another* Sale, proceed through the transaction lifecycle using the **same card** as you just used, and you will be presented with this screen, again being "stuck". Let's discuss how to proceed.
+
+![](public/assets/images/verifyingPayment.png)
+
+### Working with challenges
+
+By using the same payment card twice in quick succession, we have triggered a `DUPLICATE_CHALLENGE`, which we'll need to resolve in the `CloverConnectorListener#onConfirmPaymentRequest` callback. You can read more about working with Challenges [here](https://docs.clover.com/build/working-with-challenges/). Let's render all possible challenges, and then give the merchant the option to approve, or reject the payment.
+
+If we're resolving the last challenge in the Challenges array, we want a merchant input of 'OK' to actually accept the Payment.
+
+```diff
+    setTimeout(function() {
+      if (confirm("Would you like to approve this signature?")) {
+        // accept or reject, based on the merchant's input
+        this.cloverConnector.acceptSignature(verifySignatureRequest);
+      } else {
+        this.cloverConnector.rejectSignature(verifySignatureRequest);
+      }
+    }.bind(this), 0);
+  };
++
++  CloverConnectorListener.prototype.onConfirmPaymentRequest = function(confirmPaymentRequest) {
++  for (var i = 0; i < confirmPaymentRequest.getChallenges().length; i++) {
++    // boolean of whether or not we are resolving the last challenge in the Challenges array
++    var isLastChallenge = i === confirmPaymentRequest.getChallenges().length - 1;
++    
++    if (confirm(confirmPaymentRequest.getChallenges()[i].getMessage())) {
++      if (isLastChallenge) {
++        this.cloverConnector.acceptPayment(confirmPaymentRequest.getPayment());
++      }
++    } else {
++      this.cloverConnector.rejectPayment(confirmPaymentRequest.getPayment(), request.getChallenges()[i]);
++      return;
++    }
++  }
+};
+```
+
+Start a new Sale, ensure you're able to resolve the `DUPLICATE_CHALLENGE`, and then let's move on to the next section.
 
 ----------
 
