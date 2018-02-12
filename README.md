@@ -477,7 +477,7 @@ If we're resolving the last challenge in the Challenges array, we want a merchan
 +        this.cloverConnector.acceptPayment(confirmPaymentRequest.getPayment());
 +      }
 +    } else {
-+      this.cloverConnector.rejectPayment(confirmPaymentRequest.getPayment(), request.getChallenges()[i]);
++      this.cloverConnector.rejectPayment(confirmPaymentRequest.getPayment(), confirmPaymentRequest.getChallenges()[i]);
 +      return;
 +    }
 +  }
@@ -486,128 +486,194 @@ If we're resolving the last challenge in the Challenges array, we want a merchan
 
 Start a new Sale, ensure you're able to resolve the `DUPLICATE_CHALLENGE`, and then let's move on to the next section.
 
-----------
+### Did the sale succeed?
 
-----------
+Now, our POS needs to know whether or not the sale succeeded, so we can update our UI accordingly. We've previously used the `SaleRequest` class and `CloverConnector#sale` method to initiate a transaction, and now we'll use the `SaleResponse` class and `CloverConnectorListener#onSaleResponse` method to determine what actually occurred in the transaction.
 
-----------
+We'll use the [toLocaleString](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString) method on the JavaScript `Number` class to handle number formatting. Refer to its browser compatibility table, and replace with a different library, or code, depending on your own POS's preferences and browser compatibility requirements.
 
-### Add a listener to the Clover Connector
-Define a listener (specifically, an [`ICloverConnectorListener`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/ICloverConnectorListener.html), as you are writing over predefined events on the CloverConnector interface) for the default connector that will handle the connection to the device. For now, it will handle when the device is connected, ready to process requests, and disconnected. You will define this outside of the initial connection function as you will need it to define a sale listener in a separate class function.
-  ```javascript
-  var defaultCloverConnectorListener = Object.assign({}, clover.remotepay.ICloverConnectorListener.prototype, {
-    onDeviceReady: function (merchantInfo) {
-      console.log({message: "Device ready to process requests!", merchantInfo: merchantInfo});
-    },
+In `index.js`:
 
-    onDeviceDisconnected: function () {
-      console.log({message: "Disconnected"});
-    },
-
-    onDeviceConnected: function () {
-      console.log({message: "Connected, but not available to process requests"});
+```diff
+CloverConnectorListener.prototype.onConfirmPaymentRequest = function(confirmPaymentRequest) {
+  for (var i = 0; i < confirmPaymentRequest.getChallenges().length; i++) {
+    // boolean of whether or not we are resolving the last challenge in the Challenges array
+    var isLastChallenge = i === confirmPaymentRequest.getChallenges().length - 1;
+    
+    if (confirm(confirmPaymentRequest.getChallenges()[i].getMessage())) {
+      if (isLastChallenge) {
+        this.cloverConnector.acceptPayment(confirmPaymentRequest.getPayment());
+      }
+    } else {
+      this.cloverConnector.rejectPayment(confirmPaymentRequest.getPayment(), request.getChallenges()[i]);
+      return;
     }
-  });
-  ```
+  }
+};
++ 
++ CloverConnectorListener.prototype.onSaleResponse = function(saleResponse) {
++   if (saleResponse.getSuccess()) {
++     var saleResponseAmount = saleResponse.getPayment().getAmount();
++     var formattedSaleResponseAmount = (saleResponseAmount / 100).toLocaleString("en-US", {style: "currency", currency: "USD"});
++     alert(`Sale was successful for ${formattedSaleResponseAmount}!`);
++   } else {
++     alert(`${saleResponse.getReason()} — ${saleResponse.getMessage()}`);
++   }
++ };
+```
 
-Add the listener to the connector using [`CloverConnector::addCloverConnectorListener()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#addCloverConnectorListener-com.clover.remote.client.ICloverConnectorListener-), passing in the defaultCloverConnectorListener you just defined.
+A `SaleRequest` will now `alert` us when it is complete, and let us know whether or not it succeeded. Refresh the page, process another transaction, and you should see the "Sale was successful...!" dialog.
 
-### Initialize the connection
-Initialize the connection using [`CloverConnector::initializeConnection()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#initializeConnection--). In the app, click the green connect button. If everything worked correctly, the status bar at the top will display a ready message! You are now able to connect and disconnect from a Clover device.
+You'll now probably want to test that failed transactions behave as expected, as well. The test card we have shipped you with your DevKit should *always* succeed. We'll need to use a certain amount, and a certain test card, in order to simulate a decline at the payment gateway. And we'll need to be able to manually enter the card information onto the Clover device. Let's implement a way to do that, first.
+
+First, let's update the POS's UI to allow the merchant to toggle the Clover into prompting for a manually entered card.
+
+In `index.html`:
+
+```diff
+<div class="numpad--row row">
+    <div class="numpad--key double" id="key--00">00</div>
+    <div class="numpad--key" id="key--0">0</div>
+    <div class="numpad--key triple" id="key--del">Del</div>
+</div>
++ <div class="row">
++   <div class="col-xs-12">
++     <label>
++       <input type="checkbox" id="checkbox-manual-card-entry"/> Manual card entry?
++     </label>
++   </div> 
++ </div>
+<div class="numpad--row row">
+    <div class="numpad--key key--primary" id="key--charge">Charge</div>
+</div>
+```
+
+And if that checkbox is checked, we'll make it behave as expected. In `index.js`:
+
+```diff
+CloudTest.prototype.performSale = function (amount) {
+  var saleRequest = new clover.remotepay.SaleRequest();
+  saleRequest.setAmount(amount);
+  saleRequest.setExternalId(clover.CloverID.getNewId());
++  if (document.getElementById("checkbox-manual-card-entry").checked) {
++    saleRequest.setCardEntryMethods(clover.CardEntryMethods.CARD_ENTRY_METHOD_MANUAL);
++    document.getElementById("checkbox-manual-card-entry").checked = false;
++  }
+  this.cloverConnector.sale(saleRequest);
+};
+```
+
+Now, start a manual-entered sale and when prompted, enter the following card information:
+
+```
+PAN: 4005571702222222
+CVV: 123
+Expiration date: Anytime in the future
+```
+
+`CloverConnectorListener#onSaleResponse` should trigger, and `alert` us that the payment has failed. Nice!
+
+**Note:** Interchange fees may be higher for manually entered card transactions, compared to swipe/dip/tap. However, we strongly recommend implementing an option in your POS to allow your merchants to enter cards manually. Allowing your merchant to accept manually entered cards can serve as a backup in case the cardholder has a damaged mag stripe or EMV chip.
+
+### Handling Partial Auths
+
+A successful card transaction does not necessarily guarantee that the entire `amount` of the `SaleRequest` was authorized. For example, a prepaid Visa/Mastercard Gift Card might only have enough funds to partially cover the full transaction amount. This is called a **Partial Auth**. Your industry might make you more susceptible to Partial Auths, depending on the payment options available to cardholders (e.g., HSA debit cards could also lead to a higher frequency of Partial Auths).
+
+Our POS should determine if a Partial Auth occurred. If it did, a new `SaleRequest` should be initiated, for the amount that was *not* paid for by the first transaction. We will use the `localStorage` API to keep track of the `amount` that was used in the initiating `SaleRequest`, and compare it to the amount that was actually authorized in its corresponding `SaleResponse`.
+
+In `index.js`:
+
+```diff
+// perform a sale
+CloudTest.prototype.performSale = function (amount) {
+  var saleRequest = new clover.remotepay.SaleRequest();
+  saleRequest.setAmount(amount);
+  saleRequest.setExternalId(clover.CloverID.getNewId());
+  if (document.getElementById("checkbox-manual-card-entry").checked) {
+    saleRequest.setCardEntryMethods(clover.CardEntryMethods.CARD_ENTRY_METHOD_MANUAL);
+    document.getElementById("checkbox-manual-card-entry").checked = false;
+  }
++  // localStorage will store the amount as a string, even though it's an int
++  window.localStorage.setItem("lastTransactionRequestAmount", amount);
+  this.cloverConnector.sale(saleRequest);
+};
+```
+
+It will be nice to have access to the `performSale` helper method on the `CloudTest` instance we're creating in `index.js`.
+
+```diff
++ var cloudTest;
+
+// class definition
+CloudTest = function () {
+  this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
+  this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
+  this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
+  this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
+  this.remoteApplicationId = "rpc.tut";
++  cloudTest = this;
+};
+```
+
+And now, we can implement the logic of Partial Auth handling.
+
+```diff
+CloverConnectorListener.prototype.onSaleResponse = function(saleResponse) {
+  if (saleResponse.getSuccess()) {
++    // convert the stored string back to an int
++    var saleRequestAmount = parseInt(window.localStorage.getItem("lastTransactionRequestAmount"));
++    // returns an int, so comparison is allowed
+    var saleResponseAmount = saleResponse.getPayment().getAmount();
++    
++    // a partial auth occurred if the Payment amount was less than the TransactionRequest amount
++    var wasPartialAuth = saleResponseAmount < saleRequestAmount;
++    
+    var formattedSaleResponseAmount = (saleResponseAmount / 100).toLocaleString("en-US", {style: "currency", currency: "USD"});
++    if (wasPartialAuth) {
++      var remainingBalance = saleRequestAmount - saleResponseAmount;
++      var formattedRemainingBalance = (remainingBalance / 100).toLocaleString("en-US", {style: "currency", currency: "USD"});
++      alert(`Partially authorized for ${formattedSaleResponseAmount} — remaining balance is ${formattedRemainingBalance}. Ask the customer for an additional payment method.`);
++      
++      // start another sale for the remaining amount
++      cloudTest.performSale(remainingBalance);
++      
++    } else {
++      alert(`Sale was successful for ${formattedSaleResponseAmount}!`);
++    }
+-     alert(`Sale was successful for ${formattedSaleResponseAmount}!`);
+  } else {
+    alert(`${saleResponse.getReason()} — ${saleResponse.getMessage()}`);
+  }
+};
+```
+
+Just like a decline, we'll need a special card to simulate a Partial Auth. Start a manually-entered sale and when prompted, enter the following card information:
+
+```
+PAN: 4005578003333335
+CVV: 123
+Expiration date: Anytime in the future
+```
+
+This card number should pay for half of the `amount`. You should now see our POS properly handle Partial Auths, and initiate a new `SaleRequest` with the remaining balance. When you are satisfied with how our POS is handling partial auths, you can pay for the remaining balance with the physical test card we provided with your DevKit.
+
+
+## Additional Resources
+Congratulations! You have now integrated a web application to a Clover device, performed multiple Sales, and are handling the most frequent edge cases. However, the `CloverConnector` is capable of so much more. Here are some additional resources to expand on this project, and start integrating these functionalities into your own POS:
+
+  * [The remote-pay-cloud SDK repo](https://github.com/clover/remote-pay-cloud/)
+  * [API documentation](http://clover.github.io/remote-pay-cloud/1.4.3/)
+  * [API class documentation](https://clover.github.io/remote-pay-cloud-api/1.4.2/)
+  * [Additional example apps](https://github.com/clover/remote-pay-cloud-examples)
+  * [Semi-Integration FAQ](https://community.clover.com/spaces/11/semi-integration.html?topics=FAQ)
+  * [Clover Developer Community](https://community.clover.com/index.html)
+
+
+----------
+
+----------
+
+----------
 
 ### Display a message
 Define a class function `showMessage()` that will use the [`CloverConnector::showMessage()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#showMessage-java.lang.String-) to display a message through the device through the "Show Message" button. To retrieve the connector, a `getCloverConnector()` has been defined that will retrieve the connector that was set in the `run` function. Now you can show any message to the device. Note that this message will not disappear until it is changed, or the device/application is disconnected.
-
-As an important side note, make sure to properly dispose of the connector on completion of the action (such as showing a message or completing a sale). A `cleanup()` function is defined already that invokes the [`CloverConnector::dispose()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#dispose--) function.
-
-  ```javascript
-  CloudTest.prototype.showMessage = function() {
-    // This will send a welcome message to the device
-    getCloverConnector().showMessage("Welcome to Clover Connector")
-
-    // Make sure to properly dispose of the connector
-    cleanup();
-  }
-  ```
-
-### Add a sale listener
-Now add a sale listener. This is done by extending the `defaultCloverConnectorListener` with event handlers for sale actions. You will define onSaleResponse, onConfirmPaymentRequest, and onVerifySignatureRequest. Take a look at [`CloverConnector::acceptPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptPayment-com.clover.sdk.v3.payments.Payment-) and [`CloverConnector::acceptSignature()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptSignature-com.clover.remote.client.messages.VerifySignatureRequest-) for more information.
-  ```javascript
-  var saleListener = Object.assign({}, defaultCloverConnectorListener, {
-    onSaleResponse: function (response) {
-      console.log({message: "Sale complete!", response: response});
-    },
-
-    onConfirmPaymentRequest: function (request) {
-      console.log({message: "Automatically accepting payment", request: request});
-
-      getCloverConnector().acceptPayment(request.getPayment());
-    },
-
-    onVerifySignatureRequest: function (request) {
-      console.log({message: "Automatically accepting signature", request: request});
-
-      getCloverConnector().acceptSignature(request);
-    }
-  });
-  ```
-Add the listener, similar to step 8, passing in the saleListener.
-
-### Make a sale
-Time to make a sale! Create a [`SaleRequest`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/messages/SaleRequest.html) object using the Remote Pay Cloud API, and set an external id, as well as the amount. The `calculator.js` will have access to the amount on the number pad. Invoke `setAutoAcceptSignature(false)` since we want to see the signature handling.
-  ```javascript
-  var saleAmount = amount
-  var saleRequest = new sdk.remotepay.SaleRequest();
-  saleRequest.setExternalId(clover.CloverID.getNewId());
-  saleRequest.setAmount(amount);
-  saleRequest.setAutoAcceptSignature(false);
-  ```
-Finally, initiate the sale by calling the [`CloverConnector::sale()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#sale-com.clover.remote.client.messages.SaleRequest-) function, passing in the `saleRequest`. If everything goes smoothly, you should see instructions on the Clover device to process the payment method.
-
-### Handling requests and responses
-Congratulations, you made your first sale! Now take a moment to look at the log messages and its contents (you should have requests and responses set in the console.logs). Learn about a [`SaleResponse`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/messages/SaleResponse.html).
-
-Make another sale, with the same card/payment method. Take a look at the confirm payment message in the console. You should see a challenges property, which is an array containing any number of potential issues with the transaction. Here you should have a "duplicate payment" message, because we just used the same card!
-
-Now we need to create logic to handle this challenge. One simple way is to create a separate interface to confirm or reject this transaction from the POS. Then, depending on the input, call [`CloverConnect:: acceptPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#acceptPayment-com.clover.sdk.v3.payments.Payment-), or the [`CloverConnector::rejectPayment()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#rejectPayment-com.clover.sdk.v3.payments.Payment-com.clover.remote.Challenge-) connector functions. You will also define some more logic for `onSaleResponse`, since rejecting a payment request will not result in a proper sale.
-
-  ```javascript
-  onSaleResponse: function (response) {
-    console.log({message: "Sale complete!", response: response});
-    if (!response.getIsSale()) {
-      console.log({error: "Response is not a sale!"});
-      updateStatus("Sale failed.")
-    } else {
-      updateStatus("Sale complete!");
-    }
-
-    cleanup();
-  },
-
-  onConfirmPaymentRequest: function (request) {
-    console.log({message: "Processing payment...", request: request});
-    updateStatus("Processing payment...");
-    var challenges = request.getChallenges();
-    if (challenges) {
-      sign = window.confirm(challenges[0].message);
-      if (sign) {
-        getCloverConnector().acceptPayment(request.getPayment());
-      } else {
-        getCloverConnector().rejectPayment(request.getPayment(), challenges[0]);
-      }
-    } else {
-      console.log({message: "Accepted Payment!"});
-      cloverConnector.acceptPayment(request.getPayment());
-    }
-  },
-  ```
-
-### Additional Resources
-Congratulations! You have now integrated a web application to a clover device, and are able to show messages and perform a sale. But the Clover Connector is capable of so much more. Here are some additional resources to expand on this project, and start integrating these functionalities into a personal application:
-
-  * [Clover Connector Browser SDK](https://github.com/clover/remote-pay-cloud/)
-  * [API documentation](http://clover.github.io/remote-pay-cloud/1.4.0/)
-  * [API class documentation](https://clover.github.io/remote-pay-cloud-api/1.4.0/)
-  * [Example apps](https://github.com/clover/remote-pay-cloud-examples)
-  * [Semi-Integration FAQ](https://community.clover.com/spaces/11/semi-integration.html?topics=FAQ)
-  * [Clover Developer Community](https://community.clover.com/index.html)
