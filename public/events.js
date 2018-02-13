@@ -47,13 +47,13 @@ document.addEventListener("DOMContentLoaded", function() {
   });
   
   connectKey.addEventListener("click", function() {
-    cloudtest.connect();
+    remotePayCloudTutorial.connect();
   });
   
   chargeKey.addEventListener("click", function() {
   });
   
   helloWorldKey.addEventListener("click", function() {
-    cloudTest.showHelloWorld();
+    remotePayCloudTutorial.showHelloWorld();
   });
 });
