@@ -131,7 +131,7 @@ In `index.html`:
 +  </select>
 
   <div class="numpad--key key--primary" id="key--connect">
-      Connect
+    Connect
   </div>
 </div>
 ```
@@ -141,33 +141,34 @@ In `index.html`:
 In `events.js`:
 
 ```diff
-  chargeKey.addEventListener("click", function() {
+  helloWorldKey.addEventListener("click", function() {
+    cloudTest.showHelloWorld();
   });
 +  
-+ fetch(`${cloudtest.targetCloverDomain}/v3/merchants/${cloudtest.merchant_id}/devices?access_token=${cloudtest.access_token}`)
-+ .then(function(response) {
-+   return response.json();
-+ })
-+ .then(function(data) {
-+   var select = document.getElementById("select--clover-device-serials");
++  fetch(`${cloudtest.targetCloverDomain}/v3/merchants/${cloudtest.merchant_id}/devices?access_token=${cloudtest.access_token}`)
++  .then(function(response) {
++    return response.json();
++  })
++  .then(function(data) {
++    var select = document.getElementById("select--clover-device-serials");
 +
-+   data.elements.forEach(function(device) {
-+     if (device.serial === "unknown") {
-+       // Exclude Clover emulators
-+       return;
-+     } else {
-+       var option = document.createElement("option");
-+       option.text = device.serial;
-+       select.add(option);
-+     }
-+   });
-+ })    
-+ .catch(function(error) {
-+   window.alert(error);
-+ });
++    data.elements.forEach(function(device) {
++      if (device.serial === "unknown") {
++        // Exclude Clover emulators
++        return;
++      } else {
++        var option = document.createElement("option");
++        option.text = device.serial;
++        select.add(option);
++      }
++    });
++  })    
++  .catch(function(error) {
++    window.alert(error);
++  });
 ```
 
-**Important:** Receiving a `200 OK` response from this particular REST request required our POS to have *MERCHANT_R* permission. Without this permission, we would have received a `401 Unauthorized` response. Read more about properly configuring permissions in your own POS [here](https://docs.clover.com/build/permissions/).
+**Important:** Receiving a `200 OK` response from this particular REST endpoint required our POS to have *MERCHANT_R* permission. Without this permission, we would have received a `401 Unauthorized` response. Read more about properly configuring permissions in your own POS [here](https://docs.clover.com/build/permissions/).
 
 **Note:** In the above implementation, we chose to create an `option` for all Clover devices, excluding [emulators](https://docs.clover.com/build/android-emulator-setup/), which should only be in use by developers in our Sandbox environment. You, however, might want to only render `option`s for Clover devices which are eligible for Cloud Pay Display (currently, Clover Mini, Clover Mobile, and Clover Flex), and exclude ineligible devices (currently, Clover Station and Clover 2018). In that case, the following code snippet could be used. **However,** as Clover continues our commitment to developing new, best of breed hardware, we may release additional hardware products which are also not Cloud Pay Display eligible. As a result, we realize this particular code block is **not fully future-proof**, should only be used at your own risk, and might require patching in the future. Only use this code snippet if you understand the associated risks.
 
@@ -243,19 +244,19 @@ CloudTest.prototype.connect = function() {
     "deviceSerialId": document.getElementById("select--clover-device-serials").value
   });
   
-+ this.setDisposalHandler();
++  this.setDisposalHandler();
   this.cloverConnector.initializeConnection();
 };
 
-+ CloudTest.prototype.setDisposalHandler = function() {
-+   window.onbeforeunload = function(event) {
-+     try {
-+       this.cloverConnector.dispose();
-+     } catch (e) {
-+       console.error(e);
-+     }
-+   }.bind(this);
-+ };
++  CloudTest.prototype.setDisposalHandler = function() {
++    window.onbeforeunload = function(event) {
++      try {
++        this.cloverConnector.dispose();
++      } catch (e) {
++        console.error(e);
++      }
++    }.bind(this);
++  };
 ```
 
 Let the webpage hot reload, select the device serial you would like to connect to, and then press the 'Connect' button. You should now see Cloud Pay Display launch on the device, indicating that we have successfully paired devices. Congratulations!
@@ -281,7 +282,7 @@ Note that this message will not disappear until another `CloverConnector` method
 
 ### Implement a CloverConnectorListener
 
-We canonically refer to the WebSocket connection we've now created as the `cloverConnector` API. In order to send data from your POS to the Clover device, you will invoke methods on the `cloverConnector`. You have already become familiar with `cloverConnector.initializeConnection()`.
+We canonically refer to the WebSocket connection we've now created as the `cloverConnector` API. In order to send data from your POS to the Clover device, you will invoke methods on the `cloverConnector`. You have already become familiar with `cloverConnector#initializeConnection()` and `cloverConnector#message()`.
 
 However, one-way communication is not enough. The device will also need to send payloads of data to your POS through the same WebSocket connection. You'll need to implement a `CloverConnectorListener` to respond to events, keep track of the device's state, and know if transactions succeeded or failed. Our POS will receive information about the Clover device by implementing a number of different callbacks.
 
@@ -295,43 +296,39 @@ It can also be useful to set a pointer to the `cloverConnector` on the `CloverCo
   this.cloverConnector.initializeConnection();
 };
 +
-+ CloudTest.prototype.setCloverConnectorListener = function(cloverConnector) {
-+   var CloverConnectorListener = function(connector) {
-+     clover.remotepay.ICloverConnectorListener();
-+     this.cloverConnector = connector;
-+   };
-+   
-+   CloverConnectorListener.prototype = Object.create(clover.remotepay.ICloverConnectorListener.prototype);
-+   CloverConnectorListener.prototype.constructor = CloverConnectorListener;
-+   
-+   CloverConnectorListener.prototype.onDeviceConnected = function() {
-+     document.getElementById("status-message").innerHTML = "Device is connected!";
-+   };
-+   
-+   CloverConnectorListener.prototype.onDeviceReady = function() {
-+     document.getElementById("status-message").innerHTML = "Device is connected and ready!";
-+   };
-+   
-+   CloverConnectorListener.prototype.onDeviceError = function(deviceErrorEvent) {
-+     window.alert(`Message: ${deviceErrorEvent.getMessage()}`);
-+   };
-+   
-+   this.cloverConnectorListener = new CloverConnectorListener(cloverConnector);
-+   cloverConnector.addCloverConnectorListener(this.cloverConnectorListener);
-+ };
++  CloudTest.prototype.setCloverConnectorListener = function(cloverConnector) {
++    var CloverConnectorListener = function(connector) {
++      clover.remotepay.ICloverConnectorListener();
++      this.cloverConnector = connector;
++    };
++    
++    CloverConnectorListener.prototype = Object.create(clover.remotepay.ICloverConnectorListener.prototype);
++    CloverConnectorListener.prototype.constructor = CloverConnectorListener;
++    
++    CloverConnectorListener.prototype.onDeviceConnected = function() {
++      document.getElementById("status-message").innerHTML = "Device is connected!";
++    };
++    
++    CloverConnectorListener.prototype.onDeviceReady = function() {
++      document.getElementById("status-message").innerHTML = "Device is connected and ready!";
++    };
++    
++    CloverConnectorListener.prototype.onDeviceError = function(deviceErrorEvent) {
++      window.alert(`Message: ${deviceErrorEvent.getMessage()}`);
++    };
++    
++    this.cloverConnectorListener = new CloverConnectorListener(cloverConnector);
++    cloverConnector.addCloverConnectorListener(this.cloverConnectorListener);
++  };
 ```
 
-After the page refreshes, reconnect to your device, and "Device is connected and ready!" should be rendered. `onDeviceConnected` and `onDeviceReady` are occasionally invoked very rapidly, to the point where you may never see the "Device is connected!" message on the DOM.
+After the page refreshes, re-connect to your device, and "Device is connected and ready!" should be rendered. `onDeviceConnected` and `onDeviceReady` are occasionally invoked very rapidly, to the point where you may never see the "Device is connected!" message on the DOM.
 
 **Important:** *Never* invoke a `cloverConnector` method from within the `CloverConnectorListener#onDeviceReady` callback. This callback is **not** guaranteed to fire only once, and unintended consequences can arise if you start multiple `TransactionRequests` concurrently.
 
-### Starting our first Sale
+### Initiating our first Sale
 
-We are now ready to start our first Sale, one of the three transaction types that Clover semi-integration supports. Initiating a Sale requires you to generate a `SaleRequest` instance, which inherits from our `TransactionRequest` class. We'll reference both in this section.
-
- <!-- You can find more detailed information about all of our transaction types here. -->
- 
- <!-- // TODO: replace with the proper link to our docs after https://jira.dev.clover.com/browse/DS-63 has been completed and published. -->
+We are now ready to start our first Sale, one of the three transaction types that Clover semi-integration supports. You can find more detailed information about all of our transaction types [here](https://docs.clover.com/build/semi-integration-transaction-types/). Initiating a Sale requires you to generate a `SaleRequest` instance, which inherits from our `TransactionRequest` class. We'll reference both in this section.
 
 We already have a 'Charge' button, but it does nothing. Let's add some functionality.
 
@@ -339,11 +336,11 @@ In `events.js`, we'll add functionality to the `onclick` handler, parsing the `t
 
 ```diff
 chargeKey.addEventListener("click", function() {
-+ var amount = parseInt(document.getElementById("total").innerHTML.replace(".", ""));
-+ // 'amount' is an int of the number of pennies to charge
-+ if (amount > 0) {
-+   cloudtest.performSale(amount);
-+ }
++  var amount = parseInt(document.getElementById("total").innerHTML.replace(".", ""));
++  // 'amount' is an int of the number of pennies to charge
++  if (amount > 0) {
++    cloudtest.performSale(amount);
++  }
 });
 ```
 
@@ -352,17 +349,17 @@ We'll interact with the actual `cloverConnector` API in `index.js`. Note that we
 2. It helps prevent accidental duplicate charges. The Clover device will reject back-to-back `TransactionRequests` that have identical `ExternalId`s.
 3. If you use universally unique `ExternalId`s on every transaction, they can be used as a last resort to help Clover Engineering triage issues that may arise with individual transactions. Please note that providing a Clover `PaymentId` will resolve issues quicker. However, there can be rare instances when your POS only knows the `ExternalId` of a `TransactionRequest`, but not its Clover `PaymentId` (e.g., if connectivity between the POS and Clover device is dropped mid-transaction).
 
-For these reasons, **you should persist both ExternalIds and Clover Payments in your database.** We also highly recommend making `ExternalId`s universally unique. If your POS is not already generating unique Payment IDs, our SDK provides a utility method to generate a 13-digit alphanumeric UUID. While we can't guarantee universal uniqueness, our utility method has only a 1/1,180,591,620,685,165,462,528 chance of collision.
+For these reasons, **you should persist both ExternalIds and Clover Payments in your database.** We also highly recommend making your `ExternalId`s universally unique. If your POS is not already generating unique Payment IDs, our SDK provides a utility method to generate a 13-digit alphanumeric UUID. While we can't guarantee universal uniqueness, our utility method has only a 1/1,180,591,620,685,165,462,528 chance of collision.
 
-The `ExternalId` is required on every `TransactionRequest`, and must have a length between 1 and 32.
+The `ExternalId` is required on every `TransactionRequest`, and must have a length between 1 and 32 characters.
 
 ```diff
 CloudTest.prototype.performSale = function(amount) {
-- // TODO: use the CloverConnector to initiate a sale
-+ var saleRequest = new clover.remotepay.SaleRequest();
-+ saleRequest.setAmount(amount);
-+ saleRequest.setExternalId(clover.CloverID.getNewId());
-+ this.cloverConnector.sale(saleRequest);
+-  // TODO: use the CloverConnector to initiate a sale
++  var saleRequest = new clover.remotepay.SaleRequest();
++  saleRequest.setAmount(amount);
++  saleRequest.setExternalId(clover.CloverID.getNewId());
++  this.cloverConnector.sale(saleRequest);
 };
 ```
 
@@ -444,8 +441,8 @@ CloverConnectorListener.prototype.onVerifySignatureRequest = function(verifySign
     var stroke = verifySignatureRequest.getSignature().strokes[strokeIndex];
     ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
     for (var pointIndex = 1; pointIndex < stroke.points.length; pointIndex++) {
-        ctx.lineTo(stroke.points[pointIndex].x, stroke.points[pointIndex].y);
-        ctx.stroke();
+      ctx.lineTo(stroke.points[pointIndex].x, stroke.points[pointIndex].y);
+      ctx.stroke();
     }
   }
   // reset the scale so clearing the previous signature will function as intended
@@ -474,7 +471,7 @@ But don't ship this code to production just yet. Start *another* Sale, proceed t
 
 ![](public/assets/images/verifyingPayment.png)
 
-### Working with challenges
+### Working with Challenges
 
 By using the same payment card twice in quick succession, we have triggered a `DUPLICATE_CHALLENGE`, which we'll need to resolve in the `CloverConnectorListener#onConfirmPaymentRequest` callback. You can read more about working with Challenges [here](https://docs.clover.com/build/working-with-challenges/). Let's render all possible challenges, and then give the merchant the option to approve, or reject the payment.
 
@@ -510,7 +507,7 @@ If we're resolving the last challenge in the Challenges array, we want a merchan
 
 Start a new Sale, ensure you're able to resolve the `DUPLICATE_CHALLENGE`, and then let's move on to the next section.
 
-### Did the sale succeed?
+### Did the Sale Succeed?
 
 Now, our POS needs to know whether or not the sale succeeded, so we can update our UI accordingly. We've previously used the `SaleRequest` class and `CloverConnector#sale` method to initiate a transaction, and now we'll use the `SaleResponse` class and `CloverConnectorListener#onSaleResponse` method to determine what actually occurred in the transaction.
 
@@ -548,7 +545,7 @@ CloverConnectorListener.prototype.onConfirmPaymentRequest = function(confirmPaym
 
 A `SaleRequest` will now `alert` us when it is complete, and let us know whether or not it succeeded. Refresh the page, process another transaction, and you should see the "Sale was successful...!" dialog.
 
-You'll now probably want to test that failed transactions behave as expected, as well. The test card we have shipped you with your DevKit should *always* succeed. We'll need to use a certain amount, and a certain test card, in order to simulate a decline at the payment gateway. And we'll need to be able to manually enter the card information onto the Clover device. Let's implement a way to do that, first.
+You'll now probably want to test that failed transactions behave as expected, as well. The test card we have shipped you with your DevKit should *always* succeed. We'll need to use a certain test card in order to simulate a decline at the payment gateway. And we'll need to be able to manually enter the card information onto the Clover device. Let's implement a way to do that, first.
 
 First, let's update the POS's UI to allow the merchant to toggle the Clover into prompting for a manually entered card.
 
@@ -574,7 +571,7 @@ In `index.html`:
 </div>
 ```
 
-And if that checkbox is checked, we'll make it behave as expected. In `index.js`:
+And if that checkbox is checked, we'll initiate a `SaleRequest` with a manual card entry method. In `index.js`:
 
 ```diff
 CloudTest.prototype.performSale = function(amount) {
@@ -589,7 +586,7 @@ CloudTest.prototype.performSale = function(amount) {
 };
 ```
 
-Now, start a manually-entered sale and when prompted, enter the following card information:
+Now, start a manually-entered sale, and enter the following card information when prompted:
 
 ```
 PAN: 4005571702222222
