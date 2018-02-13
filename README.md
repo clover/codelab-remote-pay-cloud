@@ -260,7 +260,7 @@ CloudTest.prototype.connect = function() {
 
 Let the webpage hot reload, select the device serial you would like to connect to, and then press the 'Connect' button. You should now see Cloud Pay Display launch on the device, indicating that we have successfully paired devices. Congratulations!
 
-TODO: "Did Cloud Pay Display not launch? Common troubleshooting here." - link to common mistakes. e.g., Device not connected to the internet? Something else? Blah blah blah? If your issue is not resolved by these common mistakes, and you are still unable to connect to your Clover device, please post a question on our [Clover Developer Community](https://community.clover.com/).
+<!-- TODO: "Did Cloud Pay Display not launch? Common troubleshooting here." - link to common mistakes. e.g., Device not connected to the internet? Something else? Blah blah blah? If your issue is not resolved by these common mistakes, and you are still unable to connect to your Clover device, please post a question on our [Clover Developer Community](https://community.clover.com/). -->
 
 ### Hello World
 
@@ -327,7 +327,11 @@ After the page refreshes, reconnect to your device, and "Device is connected and
 
 ### Starting our first Sale
 
-We are now ready to start our first Sale, one of the three transaction types that Clover semi-integration supports. You can find more detailed information about all of our transaction types here. Initiating a Sale requires you to generate a `SaleRequest` instance, which inherits from our `TransactionRequest` class. We'll reference both in this section. // TODO: replace with the proper link to our docs after https://jira.dev.clover.com/browse/DS-63 has been completed and published.
+We are now ready to start our first Sale, one of the three transaction types that Clover semi-integration supports. Initiating a Sale requires you to generate a `SaleRequest` instance, which inherits from our `TransactionRequest` class. We'll reference both in this section.
+
+ <!-- You can find more detailed information about all of our transaction types here. -->
+ 
+ <!-- // TODO: replace with the proper link to our docs after https://jira.dev.clover.com/browse/DS-63 has been completed and published. -->
 
 We already have a 'Charge' button, but it does nothing. Let's add some functionality.
 
@@ -370,7 +374,7 @@ After you enter your signature on-screen, you might notice the device is "stuck"
 
 Exit Cloud Pay Display by touching the four corners of the screen, and let's write some more code. We don't want any of our merchants to get "stuck" at this screen.
 
-If you never saw this screen, you'll need to adjust your merchant level settings, and initiate another Sale to reach this point. // TODO: link to a page that talks about merchant-level signature settings in depth.
+**Note:** If you never saw this screen, you'll need to adjust your merchant level settings, and initiate another Sale to reach this point. After exiting Cloud Pay Display, open the **Setup** app, navigate to **Payments**, and scroll down to **Signature Settings**. Set the **Signature entry location** to 'On tablet screen' and the **Signature requirement** to 'Always require signature'.
 
 ### Handling signature verification
 
