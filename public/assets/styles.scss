@@ -3,8 +3,8 @@
 @import 'effects';
 
 body {
-    font-family: $primary-serif;
-    background:url(https://www.pixeden.com/media/k2/galleries/220/001-wood-melamine-subttle-pattern-background-pat.jpg);
+  font-family: $primary-serif;
+  background:url("./images/backgroundImage.jpg");
 }
 
 label {
@@ -18,117 +18,122 @@ label {
 }
 
 .logo {
-    height: 80px;
-    box-sizing: content-box;
-    padding: 24px;
+  height: 80px;
+  box-sizing: content-box;
+  padding: 24px;
 }
 
 .logo--container {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .status {
-    padding: 24px;
+  padding: 24px;
 }
 
 .status--container {
-    background-color: $clover-gray-5;
-    border-radius: 15px;
-    margin-top: 20px;
+  background-color: $clover-gray-5;
+  border-radius: 15px;
+  margin-top: 20px;
 }
 
 .pos--container {
-    height: fit-content;
-    border-radius: 10px;
-    padding: 40px 60px;
-    margin: 40px auto;
-    background-color: $clover-white;
+  height: fit-content;
+  border-radius: 10px;
+  padding: 40px 60px;
+  margin: 40px auto;
+  background-color: $clover-white;
 }
 
 .display {
-    border-radius: 10px;
-    background-color: $clover-gray-50;
-    color: $clover-white;
-    height: 80px;
-    width: 260px;
-    padding: 5px 20px;
-    margin: auto;
-    margin-top: 20px;
-    font-size: 3em;
-     -webkit-box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
-    -moz-box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
-    box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
+  border-radius: 10px;
+  background-color: $clover-gray-50;
+  color: $clover-white;
+  height: 80px;
+  width: 260px;
+  padding: 5px 20px;
+  margin: auto;
+  margin-top: 20px;
+  font-size: 3em;
+  -webkit-box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
+  -moz-box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
+  box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
 }
 
 
 .numpad {
-    width: 300px;
-    justify-content: center;
-    margin-top: 30px;
+  width: 300px;
+  justify-content: center;
+  margin-top: 30px;
 }
 
 #total {
-    margin-left: 120px;
+  margin-left: 120px;
 }
 
 //http://cssdeck.com/labs/fancy-3d-button
 
 .numpad--key {
-    background-color: $clover-gray-50;
-    border: 1px solid $extra-light-clover-green;
-    border-radius: 10px;
-    color: $clover-white;
-    cursor: pointer;
-    font-size: 2em;
-    margin: 6px;
-    padding: 15px 30px;
-    -webkit-box-shadow: 0px 3px 0px $clover-gray-60, 0px 3px 25px rgba(0,0,0,.7);
-    -moz-box-shadow: 0px 3px 0px $clover-gray-60, 0px 3px 25px rgba(0,0,0,.7);
-    box-shadow: 0px 3px 0px $clover-gray-60, 0px 3px 25px rgba(0,0,0,.7);
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+  background-color: $clover-gray-50;
+  border: 1px solid $extra-light-clover-green;
+  border-radius: 10px;
+  color: $clover-white;
+  cursor: pointer;
+  font-size: 2em;
+  margin: 6px;
+  padding: 15px 30px;
+  -webkit-box-shadow: 0px 3px 0px $clover-gray-60, 0px 3px 25px rgba(0,0,0,.7);
+  -moz-box-shadow: 0px 3px 0px $clover-gray-60, 0px 3px 25px rgba(0,0,0,.7);
+  box-shadow: 0px 3px 0px $clover-gray-60, 0px 3px 25px rgba(0,0,0,.7);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .numpad--key:active {
-    background: $clover-gray-50;
-    -webkit-box-shadow: 0px 1px 0px $clover-gray-60, 0px 1px 6px rgba(0,0,0,.9);
-    -moz-box-shadow: 0px 1px 0px $clover-gray-60, 0px 1px 6px rgba(0,0,0,.9);
-    box-shadow: 0px 1px 0px $clover-gray-60, 0px 3px 1px rgba(0,0,0,.9);
-    position: relative;
-    top: 2px;
+  background: $clover-gray-50;
+  -webkit-box-shadow: 0px 1px 0px $clover-gray-60, 0px 1px 6px rgba(0,0,0,.9);
+  -moz-box-shadow: 0px 1px 0px $clover-gray-60, 0px 1px 6px rgba(0,0,0,.9);
+  box-shadow: 0px 1px 0px $clover-gray-60, 0px 3px 1px rgba(0,0,0,.9);
+  position: relative;
+  top: 2px;
 }
 
 .double {
-    padding: 15px 21px;
+  padding: 15px 21px;
 }
 
 .triple {
-    padding: 15px;
+  padding: 15px;
 }
 
 .key--primary,.key--primary:active {
-    background-color: $clover-green-web;
-    -webkit-box-shadow: 0px 6px 0px $clover-green-web, 0px 6px 25px rgba(0,0,0,.7);
-    -moz-box-shadow: 0px 6px 0px $clover-green-web, 0px 6px 25px rgba(0,0,0,.7);
-    box-shadow: 0px 6px 0px $clover-green-web, 0px 6px 25px rgba(0,0,0,.7);
+  background-color: $clover-green-web;
+  -webkit-box-shadow: 0px 6px 0px $clover-green-web, 0px 6px 25px rgba(0,0,0,.7);
+  -moz-box-shadow: 0px 6px 0px $clover-green-web, 0px 6px 25px rgba(0,0,0,.7);
+  box-shadow: 0px 6px 0px $clover-green-web, 0px 6px 25px rgba(0,0,0,.7);
+}
+
+.key--secondary, .key--secondary:active {
+  background-color: $clover-green;
+  
 }
 
 .key--danger {
-    background-color: $clover-red;
-    margin-top: 16px;
-    -webkit-box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
-    -moz-box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
-    box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
+  background-color: $clover-red;
+  margin-top: 16px;
+  -webkit-box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
+  -moz-box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
+  box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
 }
 
 .key__disabled,.key__disabled:active {
-    background-color: $clover-gray;
-    box-shadow: none;
-    cursor: not-allowed;
-    top: 0px;
+  background-color: $clover-gray;
+  box-shadow: none;
+  cursor: not-allowed;
+  top: 0px;
 }

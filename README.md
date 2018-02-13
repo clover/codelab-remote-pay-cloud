@@ -69,7 +69,8 @@ To successfully `connect()` to the Clover device, we'll require:
 The `merchant_id` was passed to your POS as a query parameter when you launched your POS from Clover. We'll grab it using regex, and assign it to a property of the `CloudTest` object that gets instantiated when the page loads (see `index.html`).
 
 ```diff
-CloudTest = function () {
+CloudTest = function() {
+- // TODO: set instance variables for CloverConnector configuration  
 + this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
 };
 ```
@@ -77,7 +78,7 @@ CloudTest = function () {
 The `access_token` was also passed to your POS as a query parameter. This is because our Remote Pay Cloud Tutorial does not have a backend server, so we have configured it to redirect to our POS with an `access_token` rather than a `code`. To read more about how to securely obtain an `access_token` using your own POS's backend server, please reference our [OAuth documentation](https://docs.clover.com/build/oauth-2-0/).
 
 ```diff
-CloudTest = function () {
+CloudTest = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
 + this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
 };
@@ -86,7 +87,7 @@ CloudTest = function () {
 The `client_id` was also passed to your POS as a query parameter. It uniquely identifies your app in the Clover App Market. You can read more about this topic [here](https://docs.clover.com/build/oauth-2-0/#1merch_auth).
 
 ```diff
-CloudTest = function () {
+CloudTest = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
 + this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
@@ -96,7 +97,7 @@ CloudTest = function () {
 Clover maintains [different environments for Sandbox and Production](https://docs.clover.com/build/web-apps/#before-you-begin-sandbox-vs-production). The `targetCloverDomain` specifies which one you would like to connect to. In this tutorial, we'll assume you want to target our Sandbox environment while you're developing, and our Production environment for your deployed web application.
 
 ```diff
-CloudTest = function () {
+CloudTest = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
   this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
@@ -107,7 +108,7 @@ CloudTest = function () {
 The `remoteApplicationId` is a constant value for your particular POS, and is used by Clover's Engineering team to track SDK usage, as well as to help triage issues, if you encounter any. Learn more about creating your own `remoteApplicationId` [here](https://docs.clover.com/build/create-your-remote-app-id/). For this tutorial, we'll provide our own `remoteApplicationId` that we have created, but for your own semi-integrated POS, this value needs to be replaced with your own unique `remoteApplicationId`.
 
 ```diff
-CloudTest = function () {
+CloudTest = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
   this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
@@ -124,14 +125,14 @@ In `index.html`:
 
 ```diff
 <div class="pos--container tdshadow">
-+   <select id="select--clover-device-serials">
-+   </select>
-    <div class="numpad--key key--primary" id="key--connect">
-        Connect
-    </div>
-    <div class="numpad--key key--danger key__disabled" id="key--disconnect">
-        Disconnect
-    </div>
+
+- <!-- TODO: insert select element here -->
++  <select id="select--clover-device-serials">
++  </select>
+
+  <div class="numpad--key key--primary" id="key--connect">
+      Connect
+  </div>
 </div>
 ```
 
@@ -141,9 +142,6 @@ In `events.js`:
 
 ```diff
   chargeKey.addEventListener("click", function() {
-      if (chargeKey.classList.length < 3) {
-          cloudtest.performSale(displayState);
-      }
   });
 +  
 + fetch(`${cloudtest.targetCloverDomain}/v3/merchants/${cloudtest.merchant_id}/devices?access_token=${cloudtest.access_token}`)
@@ -216,7 +214,9 @@ fetch(`${cloudtest.targetCloverDomain}/v3/merchants/${cloudtest.merchant_id}/dev
 We now have all of the data required to initialize a connection, so let's make the green 'Connect' button behave as expected. We'll connected to the currently select `deviceSerialId` in the `select` element we previously created. In `index.js`:
 
 ```diff
-CloudTest.prototype.connect = function () {
+CloudTest.prototype.connect = function() {
+- // TODO: create a configuration object, a CloverConnector, a 
+- // CloverConnectorListener, and then initialize the connection
 + this.cloverConnector = new clover.CloverConnectorFactory().createICloverConnector({
 +   "merchantId": this.merchant_id,
 +   "oauthToken": this.access_token,
@@ -233,7 +233,7 @@ CloudTest.prototype.connect = function () {
 Under the hood, using the `remote-pay-cloud` SDK, this code will instantiate a WebSocket connection. As such, to follow WebSocket best practices, we need to properly dispose of resources the user navigates to a different page, refreshes the current page, or closes the tab/window. [window.onbeforeunload](https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload) is the proper `WindowEventHandler` to handle all of these events.
 
 ```diff
-CloudTest.prototype.connect = function () {
+CloudTest.prototype.connect = function() {
   this.cloverConnector = new clover.CloverConnectorFactory().createICloverConnector({
     "merchantId": this.merchant_id,
     "oauthToken": this.access_token,
@@ -261,6 +261,23 @@ CloudTest.prototype.connect = function () {
 Let the webpage hot reload, select the device serial you would like to connect to, and then press the 'Connect' button. You should now see Cloud Pay Display launch on the device, indicating that we have successfully paired devices. Congratulations!
 
 TODO: "Did Cloud Pay Display not launch? Common troubleshooting here." - link to common mistakes. e.g., Device not connected to the internet? Something else? Blah blah blah? If your issue is not resolved by these common mistakes, and you are still unable to connect to your Clover device, please post a question on our [Clover Developer Community](https://community.clover.com/).
+
+### Hello World
+
+We will now continue the age old tradition of writing a simple application to render 'Hello World' as its result. Our POS already has a Hello World button on its DOM, and it already has an `onclick` handler. Let's give it functionality.
+
+In `index.js`:
+
+```diff
+CloudTest.prototype.showHelloWorld = function() {
+-  // TODO: show a 'Hello World' message on the device
++  this.cloverConnector.showMessage("Hello World");
+};
+```
+
+Refresh the page, re-connect to the device, click the 'Hello World' button, and ensure "Hello World" is rendered on the Clover device. In practice, the `CloverConnector#showMessage` method can be used, for example, to display a custom welcome message or a deal of the day.
+
+Note that this message will not disappear until another `CloverConnector` method is invoked, or the device/application is disconnected.
 
 ### Implement a CloverConnectorListener
 
@@ -336,7 +353,8 @@ For these reasons, **you should persist both ExternalIds and Clover Payments in 
 The `ExternalId` is required on every `TransactionRequest`, and must have a length between 1 and 32.
 
 ```diff
-CloudTest.prototype.performSale = function (amount) {
+CloudTest.prototype.performSale = function(amount) {
+- // TODO: use the CloverConnector to initiate a sale
 + var saleRequest = new clover.remotepay.SaleRequest();
 + saleRequest.setAmount(amount);
 + saleRequest.setExternalId(clover.CloverID.getNewId());
@@ -369,12 +387,14 @@ In `index.html`:
         <h3 class="status" id="status-message"> Not connected to your Clover device. Please connect to perform an action. </h3>
     </div>
 </div>
-+ 
+
+- <!-- TODO: insert canvas element here -->
 + <div class="row">
 +   <div class="col-xs-12">
 +     <canvas ref="canvas" width="300" height="175" id="verify-signature-canvas"/>
 +   </div> 
 + </div>
+
 ```
 
 Next, we'll need to implement the `CloverConnectorListener#onVerifySignatureRequest` callback that gets invoked at this stage of the transaction lifecycle. In that method, we will render the signature on the `<canvas>` element we just created, and then provide the merchant with the option of either approving or denying the signature.
@@ -397,8 +417,8 @@ CloverConnectorListener.prototype.onDeviceError = function(deviceErrorEvent) {
 +     var stroke = verifySignatureRequest.getSignature().strokes[strokeIndex];
 +     ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
 +     for (var pointIndex = 1; pointIndex < stroke.points.length; pointIndex++) {
-+         ctx.lineTo(stroke.points[pointIndex].x, stroke.points[pointIndex].y);
-+         ctx.stroke();
++       ctx.lineTo(stroke.points[pointIndex].x, stroke.points[pointIndex].y);
++       ctx.stroke();
 +     }
 +   }
 +   // reset the scale so clearing the previous signature will function as intended
@@ -532,10 +552,11 @@ In `index.html`:
 
 ```diff
 <div class="numpad--row row">
-    <div class="numpad--key double" id="key--00">00</div>
-    <div class="numpad--key" id="key--0">0</div>
-    <div class="numpad--key triple" id="key--del">Del</div>
+  <div class="numpad--key double" id="key--00">00</div>
+  <div class="numpad--key" id="key--0">0</div>
+  <div class="numpad--key triple" id="key--del">Del</div>
 </div>
+
 + <div class="row">
 +   <div class="col-xs-12">
 +     <label>
@@ -543,15 +564,16 @@ In `index.html`:
 +     </label>
 +   </div> 
 + </div>
++
 <div class="numpad--row row">
-    <div class="numpad--key key--primary" id="key--charge">Charge</div>
+  <div class="numpad--key key--primary" id="key--charge">Charge</div>
 </div>
 ```
 
 And if that checkbox is checked, we'll make it behave as expected. In `index.js`:
 
 ```diff
-CloudTest.prototype.performSale = function (amount) {
+CloudTest.prototype.performSale = function(amount) {
   var saleRequest = new clover.remotepay.SaleRequest();
   saleRequest.setAmount(amount);
   saleRequest.setExternalId(clover.CloverID.getNewId());
@@ -563,7 +585,7 @@ CloudTest.prototype.performSale = function (amount) {
 };
 ```
 
-Now, start a manual-entered sale and when prompted, enter the following card information:
+Now, start a manually-entered sale and when prompted, enter the following card information:
 
 ```
 PAN: 4005571702222222
@@ -585,7 +607,7 @@ In `index.js`:
 
 ```diff
 // perform a sale
-CloudTest.prototype.performSale = function (amount) {
+CloudTest.prototype.performSale = function(amount) {
   var saleRequest = new clover.remotepay.SaleRequest();
   saleRequest.setAmount(amount);
   saleRequest.setExternalId(clover.CloverID.getNewId());
@@ -605,7 +627,7 @@ It will be nice to have access to the `performSale` helper method on the `CloudT
 + var cloudTest;
 
 // class definition
-CloudTest = function () {
+CloudTest = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
   this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
@@ -655,7 +677,7 @@ CVV: 123
 Expiration date: Anytime in the future
 ```
 
-This card number should pay for half of the `amount`. You should now see our POS properly handle Partial Auths, and initiate a new `SaleRequest` with the remaining balance. When you are satisfied with how our POS is handling partial auths, you can pay for the remaining balance with the physical test card we provided with your DevKit.
+This card number should pay for half of the `amount`. You should now see our POS properly handle Partial Auths, and initiate a new `SaleRequest` with the remaining balance. When you are satisfied with how our POS is handling Partial Auths, you can pay for the remaining balance that the Clover is prompting for.
 
 
 ## Additional Resources
@@ -667,13 +689,3 @@ Congratulations! You have now integrated a web application to a Clover device, p
   * [Additional example apps](https://github.com/clover/remote-pay-cloud-examples)
   * [Semi-Integration FAQ](https://community.clover.com/spaces/11/semi-integration.html?topics=FAQ)
   * [Clover Developer Community](https://community.clover.com/index.html)
-
-
-----------
-
-----------
-
-----------
-
-### Display a message
-Define a class function `showMessage()` that will use the [`CloverConnector::showMessage()`](https://clover.github.io/remote-pay-java/1.4.0/docs/com/clover/remote/client/CloverConnector.html#showMessage-java.lang.String-) to display a message through the device through the "Show Message" button. To retrieve the connector, a `getCloverConnector()` has been defined that will retrieve the connector that was set in the `run` function. Now you can show any message to the device. Note that this message will not disappear until it is changed, or the device/application is disconnected.

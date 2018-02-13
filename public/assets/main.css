@@ -30,7 +30,7 @@
 
 body {
   font-family: "Open Sans", sans-serif;
-  background: url(https://www.pixeden.com/media/k2/galleries/220/001-wood-melamine-subttle-pattern-background-pat.jpg); }
+  background: url("./images/backgroundImage.jpg"); }
 
 label {
   cursor: pointer;
@@ -125,6 +125,9 @@ label {
   -webkit-box-shadow: 0px 6px 0px #65AC42, 0px 6px 25px rgba(0, 0, 0, 0.7);
   -moz-box-shadow: 0px 6px 0px #65AC42, 0px 6px 25px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 6px 0px #65AC42, 0px 6px 25px rgba(0, 0, 0, 0.7); }
+
+.key--secondary, .key--secondary:active {
+  background-color: #007e3b; }
 
 .key--danger {
   background-color: #b75454;
