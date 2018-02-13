@@ -562,6 +562,7 @@ In `index.html`:
   <div class="numpad--key triple" id="key--del">Del</div>
 </div>
 
+- <!-- TODO: Create a checkbox for manual card entry -->
 + <div class="row">
 +   <div class="col-xs-12">
 +     <label>
@@ -598,7 +599,7 @@ CVV: 123
 Expiration date: Anytime in the future
 ```
 
-`CloverConnectorListener#onSaleResponse` should trigger, and `alert` us that the payment has failed. Nice!
+After proceeding through the entire transaction lifecycle, `CloverConnectorListener#onSaleResponse` should trigger, and `alert` us that the payment has failed. Nice!
 
 **Note:** Interchange fees may be higher for manually entered card transactions, compared to swipe/dip/tap. However, we strongly recommend implementing an option in your POS to allow your merchants to enter cards manually. Allowing your merchant to accept manually entered cards can serve as a backup in case the cardholder has a damaged mag stripe or EMV chip.
 
