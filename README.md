@@ -115,7 +115,7 @@ RemotePayCloudTutorial = function() {
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
   this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
   this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
-+ this.remoteApplicationId = "rpc.tut";
++ this.remoteApplicationId = "com.tutorial.remote.pay.cloud";
 };
 ```
 
@@ -638,7 +638,7 @@ RemotePayCloudTutorial = function() {
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
   this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
   this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
-  this.remoteApplicationId = "rpc.tut";
+  this.remoteApplicationId = "com.tutorial.remote.pay.cloud";
 +  remotePayCloudTutorial = this;
 };
 ```
