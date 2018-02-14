@@ -228,16 +228,16 @@ RemotePayCloudTutorial.prototype.connect = function() {
 -  // CloverConnectorListener, and then initialize the connection
 +  var deviceId = document.getElementById("select--clover-device-serials").value;
 +
-+  var args = [this.remoteApplicationId, clover.BrowserWebSocketImpl.createInstance, new +  clover.ImageUtil(), this.targetCloverDomain, this.access_token, new +  clover.HttpSupport(XMLHttpRequest), this.merchant_id, deviceId, this.friendlyId];
-+
++  var args = [this, this.remoteApplicationId, clover.BrowserWebSocketImpl.createInstance, new clover.ImageUtil(), this.targetCloverDomain, this.access_token, new clover.HttpSupport(XMLHttpRequest), this.merchant_id, deviceId, this.friendlyId];
++  
 +  var cloverConnectorFactoryConfiguration = {};
-+ cloverConnectorFactoryConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
++  cloverConnectorFactoryConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
 +  var cloverConnectorFactory = clover.CloverConnectorFactoryBuilder.createICloverConnectorFactory(cloverConnectorFactoryConfiguration);
 +
 +  // Instantiate a cloverConnector instance using a list of arguments that must
 +  // be entered in this order.
-+  // In ES6, spread syntax would be a good replacement for .apply(this, args);
-+  this.cloverConnector = cloverConnectorFactory.createICloverConnector(new clover.WebSocketCloudCloverDeviceConfiguration.apply(this, args));
++  // In ES6, spread syntax would be a good replacement for .bind.apply();
++  this.cloverConnector = cloverConnectorFactory.createICloverConnector(new (Function.prototype.bind.apply(clover.WebSocketCloudCloverDeviceConfiguration, args)));
 +
 +  this.cloverConnector.initializeConnection();
 };
@@ -253,7 +253,7 @@ RemotePayCloudTutorial.prototype.connect = function() {
   // CloverConnectorListener, and then initialize the connection
   var deviceId = document.getElementById("select--clover-device-serials").value;
   
-  var args = [this.remoteApplicationId, clover.BrowserWebSocketImpl.createInstance, new clover.ImageUtil(), this.targetCloverDomain, this.access_token, new clover.HttpSupport(XMLHttpRequest), this.merchant_id, deviceId, this.friendlyId];
+  var args = [this, this.remoteApplicationId, clover.BrowserWebSocketImpl.createInstance, new clover.ImageUtil(), this.targetCloverDomain, this.access_token, new clover.HttpSupport(XMLHttpRequest), this.merchant_id, deviceId, this.friendlyId];
     
   var cloverConnectorFactoryConfiguration = {};
   cloverConnectorFactoryConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
@@ -261,8 +261,8 @@ RemotePayCloudTutorial.prototype.connect = function() {
   
   // Instantiate a cloverConnector instance using a list of arguments that must
   // be entered in this order.
-  // In ES6, spread syntax would be a good replacement for .apply(this, args);
-  this.cloverConnector = cloverConnectorFactory.createICloverConnector(new clover.WebSocketCloudCloverDeviceConfiguration.apply(this, args));
+  // In ES6, spread syntax would be a good replacement for .bind.apply();
+  this.cloverConnector = cloverConnectorFactory.createICloverConnector(new (Function.prototype.bind.apply(clover.WebSocketCloudCloverDeviceConfiguration, args)));
 
 + this.setDisposalHandler();
   this.cloverConnector.initializeConnection();
