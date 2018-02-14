@@ -63,10 +63,10 @@ The POS has a green 'Connect' button which has a bound `onclick` handler to invo
 To successfully `connect()` to the Clover device, we'll require:
 * The `merchant_id`
 * An `access_token`
-* The `client_id`
 * The `targetCloverDomain` - either Clover's Sandbox or Production environment.
 * The `remoteApplicationId` of the POS.
-* The `deviceSerialId` (serial number) of the Clover device you are connecting to.
+* The `deviceId` of the Clover device you are connecting to. This is different than the device's serial number, and we'll discuss this more in depth shortly.
+* A `friendlyId` - a human-readable way to identify the current POS. We'll also discuss this more in depth.
 
 The `merchant_id` was passed to your POS as a query parameter when you launched your POS from Clover. We'll grab it using regex, and assign it to a property of the `RemotePayCloudTutorial` object that gets instantiated when the page loads (see `index.html`).
 
@@ -86,15 +86,7 @@ RemotePayCloudTutorial = function() {
 };
 ```
 
-The `client_id` was also passed to your POS as a query parameter. It uniquely identifies your app in the Clover App Market. You can read more about this topic [here](https://docs.clover.com/build/oauth-2-0/#1merch_auth).
-
-```diff
-RemotePayCloudTutorial = function() {
-  this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
-  this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
-+ this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
-};
-```
+The `client_id` was also passed to your POS as a query parameter. If you are using a `code` response type, as previously mentioned, you would need this `client_id` to obtain an `access_token`. However, since we already have an `access_token`, we will ignore this query parameter.
 
 Clover maintains [different environments for Sandbox and Production](https://docs.clover.com/build/web-apps/#before-you-begin-sandbox-vs-production). The `targetCloverDomain` specifies which one you would like to connect to. In this tutorial, we'll assume you want to target our Sandbox environment while you're developing, and our Production environment for your deployed web application.
 
@@ -102,7 +94,6 @@ Clover maintains [different environments for Sandbox and Production](https://doc
 RemotePayCloudTutorial = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
-  this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
 + this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
 };
 ```
@@ -113,13 +104,24 @@ The `remoteApplicationId` is a constant value for your particular POS, and is us
 RemotePayCloudTutorial = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
-  this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
   this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
 + this.remoteApplicationId = "com.tutorial.remote.pay.cloud";
 };
 ```
 
-The `deviceSerialId` was *not* passed to us as a query parameter. Furthermore, a merchant can have more than one device associated with them. One way to obtain the `deviceSerialId` would be to allow the merchant to manually enter it in an `input`. However, we will use Clover's [REST APIs](https://docs.clover.com/build/web-api/) to fetch the serial numbers of all Clover devices that a merchant has associated with them. We'll render a list of the serial numbers, and then we will connect to the one that the merchant selects.
+The `friendlyId` is a human-readable way to identify the current POS. Certain error messages will include `friendlyId`s. For example, if a Clover device is currently connected to a POS via semi-integration, and a *different* POS also attempts to initiate a connection, the second POS will receive an error message stating that it is already connected to first POS' `friendlyId`. Let's refer to our POS as the "Primary POS".
+
+```diff
+RemotePayCloudTutorial = function() {
+  this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
+  this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
+  this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
+  this.remoteApplicationId = "com.tutorial.remote.pay.cloud";
++ this.friendlyId = "Primary POS";
+};
+```
+
+The `deviceId` was *not* passed to us as a query parameter. It's also different from (but associated with) the device's serial number, so the merchant will not be able to manually enter this `deviceId` value, either. As such, we will use Clover's [REST APIs](https://docs.clover.com/build/web-api/) to fetch all of the devices associated with the merchant. We'll render a list of the serial numbers, which can be validated by the merchant to determine which device to connect to, and then we will connect to the `deviceId` of the serial number that the merchant selects.
 
 First, we'll create an empty `select` element above the 'Connect' button that we'll eventually populate with those `option`s.
 
@@ -138,7 +140,7 @@ In `index.html`:
 </div>
 ```
 
-`DOMContentLoaded` is a suitable hook for when we can fetch the serial numbers of all Clover devices belonging to a merchant, and then create an `option` to be rendered in the DOM for each serial number. We'll add those `option`s to the `select` we just created.
+`DOMContentLoaded` is a suitable hook for when we can fetch the device information of all Clover devices belonging to a merchant, and then create an `option` to be rendered in the DOM for each serial number. The `value` of the `option` will be the `deviceId`, which is the parameter we actually need to connect to the device. We'll add those `option`s to the `select` we just created.
 
 In `events.js`:
 
@@ -147,27 +149,28 @@ In `events.js`:
     remotePayCloudTutorial.showHelloWorld();
   });
 +  
-+  fetch(`${remotePayCloudTutorial.targetCloverDomain}/v3/merchants/${remotePayCloudTutorial.merchant_id}/devices?access_token=${remotePayCloudTutorial.access_token}`)
-+  .then(function(response) {
-+    return response.json();
-+  })
-+  .then(function(data) {
-+    var select = document.getElementById("select--clover-device-serials");
-+
-+    data.elements.forEach(function(device) {
-+      if (device.serial === "unknown") {
-+        // Exclude Clover emulators
-+        return;
-+      } else {
-+        var option = document.createElement("option");
-+        option.text = device.serial;
-+        select.add(option);
-+      }
-+    });
-+  })    
-+  .catch(function(error) {
-+    window.alert(error);
-+  });
++ fetch(`${remotePayCloudTutorial.targetCloverDomain}/v3/merchants/${remotePayCloudTutorial.merchant_id}/devices?access_token=${remotePayCloudTutorial.access_token}`)
++ .then(function(response) {
++   return response.json();
++ })
++ .then(function(data) {
++   var select = document.getElementById("select--clover-device-serials");
++ 
++   data.elements.forEach(function(device) {
++     if (device.serial === "unknown") {
++       // Exclude Clover emulators
++       return;
++     } else {
++       var option = document.createElement("option");
++       option.text = device.serial;
++       option.value = device.id;
++       select.add(option);
++     }
++   });
++ })    
++ .catch(function(error) {
++   window.alert(error);
++ });
 ```
 
 **Important:** Receiving a `200 OK` response from this particular REST endpoint required our POS to have *MERCHANT_R* permission. Without this permission, we would have received a `401 Unauthorized` response. Read more about properly configuring permissions in your own POS [here](https://docs.clover.com/build/permissions/).
@@ -199,6 +202,7 @@ fetch(`${remotePayCloudTutorial.targetCloverDomain}/v3/merchants/${remotePayClou
     } else {
       var option = document.createElement("option");
       option.text = device.serial;
+      option.value = device.id;
       select.add(option);
     }
     // As Clover continues our commitment to developing new, best of breed hardware,
@@ -214,42 +218,56 @@ fetch(`${remotePayCloudTutorial.targetCloverDomain}/v3/merchants/${remotePayClou
 
 **Important:** The remote-pay-cloud SDK was developed for a one-to-one pairing between POS and Clover terminal. There is a high probability that issues will arise if you attempt to pair your POS with multiple Clover devices simultaneously. For the most reliable results, please use a one-to-one relationship.
 
-We now have all of the data required to initialize a connection, so let's make the green 'Connect' button behave as expected. We'll connected to the currently select `deviceSerialId` in the `select` element we previously created. In `index.js`:
+We now have all of the data required to initialize a connection, so let's give the green 'Connect' button functionality. We'll connect to the `deviceId` of the currently selected device `option` in the `select` element we previously created. 
+
+In `index.js`:
 
 ```diff
 RemotePayCloudTutorial.prototype.connect = function() {
 -  // TODO: create a configuration object, a CloverConnector, a 
 -  // CloverConnectorListener, and then initialize the connection
-+  this.cloverConnector = new clover.CloverConnectorFactory().createICloverConnector({
-+    "merchantId": this.merchant_id,
-+    "oauthToken": this.access_token,
-+    "clientId": this.client_id,
-+    "domain": this.targetCloverDomain,
-+    "remoteApplicationId": this.remoteApplicationId,
-+    "deviceSerialId": document.getElementById("select--clover-device-serials").value
-+  });
-+  
++  var deviceId = document.getElementById("select--clover-device-serials").value;
++
++  var args = [this.remoteApplicationId, clover.BrowserWebSocketImpl.createInstance, new +  clover.ImageUtil(), this.targetCloverDomain, this.access_token, new +  clover.HttpSupport(XMLHttpRequest), this.merchant_id, deviceId, this.friendlyId];
++
++  var cloverConnectorFactoryConfiguration = {};
++ cloverConnectorFactoryConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
++  var cloverConnectorFactory = clover.CloverConnectorFactoryBuilder.createICloverConnectorFactory(cloverConnectorFactoryConfiguration);
++
++  // Instantiate a cloverConnector instance using a list of arguments that must
++  // be entered in this order.
++  // In ES6, spread syntax would be a good replacement for .apply(this, args);
++  this.cloverConnector = cloverConnectorFactory.createICloverConnector(new clover.WebSocketCloudCloverDeviceConfiguration.apply(this, args));
++
 +  this.cloverConnector.initializeConnection();
 };
 ```
+
+We are accomplishing a few tasks in this code block. First, we are obtaining the `deviceId` of the currently selected serial number. Next, we create an ordered array of arguments that are required to instantiate a `CloverConnector`. We then configure the `CloverConnectorFactory` with a property (`clover.CloverConnectorFactoryBuilder.FACTORY_VERSION = clover.CloverConnectorFactoryBuilder.VERSION_12`) to specify that we are using the currently latest version of the `CloverConnector`. Finally, we instantiate the `CloverConnector` with both our `args` and the help of JavaScript's `apply` method, and initialize its connection.
 
 Under the hood, using the `remote-pay-cloud` SDK, this code will instantiate a WebSocket connection. As such, to follow WebSocket best practices, we need to properly dispose of resources the user navigates to a different page, refreshes the current page, or closes the tab/window. [window.onbeforeunload](https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload) is the proper `WindowEventHandler` to handle all of these events.
 
 ```diff
 RemotePayCloudTutorial.prototype.connect = function() {
-  this.cloverConnector = new clover.CloverConnectorFactory().createICloverConnector({
-    "merchantId": this.merchant_id,
-    "oauthToken": this.access_token,
-    "clientId": this.client_id,
-    "domain": this.targetCloverDomain,
-    "remoteApplicationId": this.remoteApplicationId,
-    "deviceSerialId": document.getElementById("select--clover-device-serials").value
-  });
+  // TODO: create a configuration object, a CloverConnector, a 
+  // CloverConnectorListener, and then initialize the connection
+  var deviceId = document.getElementById("select--clover-device-serials").value;
   
-+  this.setDisposalHandler();
+  var args = [this.remoteApplicationId, clover.BrowserWebSocketImpl.createInstance, new clover.ImageUtil(), this.targetCloverDomain, this.access_token, new clover.HttpSupport(XMLHttpRequest), this.merchant_id, deviceId, this.friendlyId];
+    
+  var cloverConnectorFactoryConfiguration = {};
+  cloverConnectorFactoryConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
+  var cloverConnectorFactory = clover.CloverConnectorFactoryBuilder.createICloverConnectorFactory(cloverConnectorFactoryConfiguration);
+  
+  // Instantiate a cloverConnector instance using a list of arguments that must
+  // be entered in this order.
+  // In ES6, spread syntax would be a good replacement for .apply(this, args);
+  this.cloverConnector = cloverConnectorFactory.createICloverConnector(new clover.WebSocketCloudCloverDeviceConfiguration.apply(this, args));
+
++ this.setDisposalHandler();
   this.cloverConnector.initializeConnection();
 };
-
++
 + RemotePayCloudTutorial.prototype.setDisposalHandler = function() {
 +   window.onbeforeunload = function(event) {
 +     try {
@@ -636,7 +654,6 @@ It will be nice to have access to the `performSale` helper method on the `Remote
 RemotePayCloudTutorial = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
-  this.client_id = window.location.href.match(/client_id=([^&]*)/)[1];
   this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
   this.remoteApplicationId = "com.tutorial.remote.pay.cloud";
 +  remotePayCloudTutorial = this;
