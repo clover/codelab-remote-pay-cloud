@@ -12,5 +12,10 @@
     "remote-pay-cloud-api": "^1.4.1",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.0"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Tulen/cloudpaytut-mock.git"
   }
 }
