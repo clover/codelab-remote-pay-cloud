@@ -1,4 +1,4 @@
-# Clover Remote Pay Cloud Tutorial
+# Clover CodeLab: Remote Pay Cloud
 
 ## Before We Start
 
@@ -46,9 +46,9 @@ After you have completed setup of your Clover DevKit, find and install the **Clo
 
 Run `npm run build` to start webpack-dev-server, which will bundle your files and enable hot reloading.
 
-Open a new browser tab and [login to your Sandbox Developer Account](https://sandbox.dev.clover.com/home/login). Find the **Remote Pay Cloud Tutorial** app in the App Market. Install and launch it, and Clover will redirect you to https://localhost:8080, including a few query parameters with the redirect which we will explain shortly. You should see a simple Point of Sale system.
+Open a new browser tab and [login to your Sandbox Developer Account](https://sandbox.dev.clover.com/home/login). Find the **CodeLab: Remote Pay Cloud** app in the App Market. Install and launch it, and Clover will redirect you to https://localhost:8080, including a few query parameters with the redirect which we will explain shortly. You should see a simple Point of Sale system.
 
-**Note:** These query parameters are required for device pairing. If you do not complete this tutorial in one browser session, you will need to re-launch the Remote Pay Cloud Tutorial from the Sandbox Clover website to resume your progress.
+**Note:** These query parameters are required for device pairing. If you do not complete this tutorial in one browser session, you will need to re-launch the CodeLab: Remote Pay Cloud from the Sandbox Clover website to resume your progress.
 
 Open the project's root directory in your favorite text editor. We will first be editing `index.js`.
 
@@ -77,7 +77,7 @@ RemotePayCloudTutorial = function() {
 };
 ```
 
-The `access_token` was also passed to your POS as a query parameter. This is because our Remote Pay Cloud Tutorial does not have a backend server, so we have configured it to redirect to our POS with an `access_token` rather than a `code`. To read more about how to securely obtain an `access_token` using your own POS's backend server, please reference our [OAuth documentation](https://docs.clover.com/build/oauth-2-0/).
+The `access_token` was also passed to your POS as a query parameter. This is because our CodeLab: Remote Pay Cloud does not have a backend server, so we have configured it to redirect to our POS with an `access_token` rather than a `code`. To read more about how to securely obtain an `access_token` using your own POS's backend server, please reference our [OAuth documentation](https://docs.clover.com/build/oauth-2-0/).
 
 ```diff
 RemotePayCloudTutorial = function() {
