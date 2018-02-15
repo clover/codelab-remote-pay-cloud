@@ -1,5 +1,5 @@
 {
-  "name": "cloudpaytut-mock",
+  "name": "CodeLab: Remote Pay Cloud",
   "version": "1.0.0",
   "description": "test",
   "main": "index.js",
@@ -8,9 +8,14 @@
     "build": "webpack & webpack-dev-server --hot --inline"
   },
   "dependencies": {
-    "remote-pay-cloud": "^1.4.2",
-    "remote-pay-cloud-api": "^1.4.1",
+    "remote-pay-cloud": "^1.4.3",
+    "remote-pay-cloud-api": "^1.4.2",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.0"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Tulen/cloudpaytut-mock.git"
   }
 }
