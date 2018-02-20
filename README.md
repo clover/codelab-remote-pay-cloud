@@ -4,27 +4,27 @@
 
 ### What We're Building
 
-Today, we're going to integrate a browser-based Point of Sale (POS) system with a Cloud Pay Display-eligible Clover device (Clover Mini, Mobile or Flex).
+Today, we're going to integrate a browser-based point-of-sale (POS) system with a Cloud Pay Display-eligible Clover device (Clover Mini, Mobile, or Flex).
 
-We've already built a simple UI of the POS for you. However, in its current state, the POS cannot connect to a Clover device, and most of the buttons do nothing. In this tutorial, we will be building that functionality.
+We've already built a simple UI for you. However, in its current state, it doesn't do anything. In this tutorial, we'll be building the ability to connect to a Clover device and process transactions.
 
-It is important to complete this tutorial in its entirety. We will be learning both how to build an integration as well as implementation best practices, so you can avoid very common mistakes and edge cases. Ultimately, this tutorial is meant to help you quickly ship quality code to production with confidence.
+It is important to complete this tutorial in its entirety. We will be learning both how to build an integration as well as implementation best practices, so you can avoid common mistakes and edge cases. Ultimately, this tutorial is meant to help you quickly ship quality code to production with confidence.
 
-This tutorial uses the remote-pay-cloud's  [`CloverConnector`](https://clover.github.io/remote-pay-cloud-api/1.4.2/remotepay.ICloverConnector.html) interface to connect to a Clover device and perform operations over the cloud. The CloverConnector provides a consolidated asynchronous interface for your POS to integrate with Clover's customer-facing payment devices.
+This tutorial uses the remote-pay-cloud's  [`CloverConnector`](https://clover.github.io/remote-pay-cloud-api/1.4.2/remotepay.ICloverConnector.html) interface to connect to a Clover device and perform operations via the cloud. The CloverConnector provides a consolidated asynchronous interface for your POS to integrate with Clover's customer-facing payment devices.
 
 ### Prerequisites
 
 We'll assume some familiarity with HTML and JavaScript, but you should be able to follow along even if you haven't used them before.
 
-For the sake of keeping this tutorial lightweight and easy to understand, we are keeping it agnostic of any frontend JavaScript framework. As a result, some adaptation may be required to implement the same behavior into your own POS, depending on your own tech stack.
+For the sake of keeping this tutorial lightweight and easy to understand, we are keeping it agnostic of any frontend JavaScript framework. As a result, some adaptation may be required to implement the same behavior in your own POS, depending on your tech stack.
 
 We recommend reading an [Overview of the Clover Platform](https://docs.clover.com/build/architecture/), including the [Developer Guidelines](https://docs.clover.com/build/developer-guidelines/).
 
-You will need to [order a Clover Developer Kit (DevKit)](https://cloverdevkit.com/) and [set it up](https://docs.clover.com/build/devkit/). An emulator cannot be used, because our Secure Payments application relies on certain aspects of our hardware. Currently, the Clover Mini, Mobile, and Flex are eligible for semi-integration.
+You'll need to [order a Clover Developer Kit (DevKit)](https://cloverdevkit.com/) and [set it up](https://docs.clover.com/build/devkit/). An emulator cannot be used because our Secure Payments application relies on certain aspects of our hardware. Currently, the Clover Mini, Mobile, and Flex are eligible for semi-integration via Cloud Pay Display.
+
+As part of setting up your DevKit, you'll [create a Sandbox developer account](https://sandbox.dev.clover.com/developers) and a test merchant.
 
 Our JavaScript remote-pay-cloud SDK is distributed as an npm package. If you do not already have npm installed, [install it](https://www.npmjs.com/get-npm).
-
-You will need to [set up a Sandbox developer account](https://sandbox.dev.clover.com/developers) and create your test merchant.
 
 ### How to Follow Along
 
@@ -32,7 +32,7 @@ You should keep this document open to follow along while completing the tutorial
 
 ### Help, I'm Stuck!
 
-If you get stuck, check out Clover's [Community support resources](https://community.clover.com/). If you don't find someone with the same question, post a new one, and we'll help you out.
+If you get stuck, check out Clover's [Developer Community](https://community.clover.com/). If you don't find someone with the same question, post a new one, and we'll help you out.
 
 With this out of the way, let's get started!
 
