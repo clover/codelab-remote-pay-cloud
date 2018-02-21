@@ -130,16 +130,13 @@ First, we'll create an empty `select` element above the 'Connect' button that we
 In `index.html`:
 
 ```diff
-<div class="pos--container tdshadow">
-
-- <!-- TODO: insert select element here -->
-+  <select id="select--clover-device-serials">
-+  </select>
-
-  <div class="numpad--key key--primary" id="key--connect">
-    Connect
-  </div>
-</div>
+<div class="row">
+  <div class="col-10 offset-1 col-md-5 offset-md-0 col-lg-4 offset-lg-1 pos--container tdshadow top24">
+    <div class="col-12 p-0 mt-2">
+-      <!-- TODO: insert select element here -->
++      <select id="select--clover-device-serials">
++      </select>
+    </div> 
 ```
 
 `DOMContentLoaded` is a suitable hook for when we can fetch the device information of all Clover devices belonging to a merchant, and then create an `option` to be rendered in the DOM for each serial number. The `value` of the `option` will be the `deviceId`, which is the parameter we actually need to connect to the device. We'll add those `option`s to the `select` we just created.
@@ -171,7 +168,7 @@ In `events.js`:
 +   });
 + })    
 + .catch(function(error) {
-+   window.alert(error);
++   window.alert(error.toString());
 + });
 ```
 
@@ -214,7 +211,7 @@ fetch(`${remotePayCloudTutorial.targetCloverDomain}/v3/merchants/${remotePayClou
   });
 })
 .catch(function(error) {
-  window.alert(error);
+  window.alert(error.toString());
 });
 ```
 
@@ -407,21 +404,19 @@ In `index.html`:
 
 ```diff
 <div class="row">
-  <div class="col-md-6 logo--container">
-    <img src="./assets/clover_logo.png" class="logo"></img>
-  </div> 
-  <div class="col-md-5 status--container">
-    <h3 class="status" id="status-message"> Not connected to your Clover device. Please connect to perform an action. </h3>
+  <div class="col-12">
+    <div class="numpad--key key--secondary p-0 mx-0" id="key--hello-world">
+      Hello World
+    </div>
   </div>
-  
--  <!-- TODO: insert canvas element here -->
-  
-+  <div class="row pos--container">
-+    <div class="col-xs-12">
-+      <canvas ref="canvas" width="300" height="175" id="verify-signature-canvas"/>
-+    </div> 
-+  </div>
-</div>
+</div> 
+
+- <!-- TODO: insert canvas element here -->
++ <div class="row top24 justify-content-center">
++   <div class="col-10 col-md-4 canvas-container">
++     <canvas ref="canvas" width="300" height="175" id="verify-signature-canvas"/>
++   </div> 
++ </div>
 ```
 
 Next, we'll need to implement the `CloverConnectorListener#onVerifySignatureRequest` callback that gets invoked at this stage of the transaction lifecycle. In that method, we will render the signature on the `<canvas>` element we just created, and then provide the merchant with the option of either approving or denying the signature.
@@ -578,24 +573,13 @@ First, let's update the POS's UI to allow the merchant to toggle the Clover into
 In `index.html`:
 
 ```diff
-<div class="numpad--row row">
-  <div class="numpad--key double" id="key--00">00</div>
-  <div class="numpad--key" id="key--0">0</div>
-  <div class="numpad--key triple" id="key--del">Del</div>
-</div>
-
-- <!-- TODO: Create a checkbox for manual card entry -->
-+ <div class="row">
-+   <div class="col-xs-12">
-+     <label>
-+       <input type="checkbox" id="checkbox-manual-card-entry"/> Manual card entry?
-+     </label>
-+   </div> 
-+ </div>
-+
-<div class="numpad--row row">
-  <div class="numpad--key key--primary" id="key--charge">Charge</div>
-</div>
+<div class="row form-inline justify-content-center">
+  <div class="col-12">
+-    <!-- TODO: Create a checkbox for manual card entry -->
++    <label>
++      <input type="checkbox" id="checkbox-manual-card-entry"/> Manual card entry?
++    </label>
+  </div> 
 ```
 
 And if that checkbox is checked, we'll initiate a `SaleRequest` with a manual card entry method. In `index.js`:

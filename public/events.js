@@ -37,12 +37,6 @@ document.addEventListener("DOMContentLoaded", function() {
       } else {
         total.innerHTML = displayState.slice(0, displayState.length - 2) + '.' + displayState.slice(displayState.length - 2, displayState.length);
       }
-      if (displayState.length >= 4) {
-        total.style.marginLeft = 120 - (27.5 * (displayState.length - 3)) + "px";
-      } else {
-        total.style.marginLeft = '120px';
-      }
-      
     });
   });
   

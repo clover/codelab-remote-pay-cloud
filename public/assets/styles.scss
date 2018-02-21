@@ -7,6 +7,14 @@ body {
   background:url("./images/backgroundImage.jpg");
 }
 
+button:focus {
+  outline: 0;
+}
+
+h3 {
+  font-size: 1.2rem;
+}
+
 label {
   cursor: pointer;
   -webkit-touch-callout: none;
@@ -17,13 +25,37 @@ label {
   user-select: none;
 }
 
+input[type='checkbox'] {
+  margin-right: 4px;
+}
+
+canvas {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: inherit;
+}
+
+.canvas-container {
+  min-width: fit-content;
+}
+
+#verify-signature-canvas {
+  max-height: 175px;
+}
+
+.top24 {
+  margin-top: 24px;
+}
+
 .logo {
   height: 80px;
   box-sizing: content-box;
-  padding: 24px;
 }
 
 .logo--container {
+  padding-top: 24px;
   display: flex;
   justify-content: center;
 }
@@ -32,44 +64,68 @@ label {
   padding: 24px;
 }
 
+#default-status-message {
+  font-weight: bolder;
+}
+
 .status--container {
   background-color: $clover-gray-5;
   border-radius: 15px;
   margin-top: 20px;
 }
 
+.red {
+  color: red;
+}
+
 .pos--container {
   height: fit-content;
   border-radius: 10px;
   padding: 40px 60px;
-  margin: 40px auto;
   background-color: $clover-white;
+}
+
+@media (max-height: 750px) {
+  .pos--container {
+    padding-top: 1rem!important;
+    padding-bottom: 1rem!important;
+  }
+}
+
+@media (min-width: 768px) {
+  .pos--container {
+    padding: 40px 20px;
+  }
+}
+
+@media (min-width: 992px) {
+  .pos--container {
+    padding: 40px 60px;
+  }
 }
 
 .display {
   border-radius: 10px;
   background-color: $clover-gray-50;
   color: $clover-white;
-  height: 80px;
-  width: 260px;
-  padding: 5px 20px;
-  margin: auto;
-  margin-top: 20px;
-  font-size: 3em;
+  max-width: 260px;
+  padding: 5px 0;
+  margin: 0 auto;
+  font-size: 2em;
   -webkit-box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
   -moz-box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
   box-shadow: 0px 2px 0px $clover-gray-60, 0px 2px 25px rgba(0,0,0,.7);
 }
 
-
-.numpad {
-  width: 300px;
-  justify-content: center;
-  margin-top: 30px;
+.space-between {
+  display: flex;
+  justify-content: space-between;
 }
 
-#total {
-  margin-left: 120px;
+.numpad {
+  max-width: 300px;
+  justify-content: center;
+  margin: 30px auto;
 }
 
 //http://cssdeck.com/labs/fancy-3d-button
@@ -80,9 +136,9 @@ label {
   border-radius: 10px;
   color: $clover-white;
   cursor: pointer;
-  font-size: 2em;
+  font-size: 1.5em;
   margin: 6px;
-  padding: 15px 30px;
+  text-align: center;
   -webkit-box-shadow: 0px 3px 0px $clover-gray-60, 0px 3px 25px rgba(0,0,0,.7);
   -moz-box-shadow: 0px 3px 0px $clover-gray-60, 0px 3px 25px rgba(0,0,0,.7);
   box-shadow: 0px 3px 0px $clover-gray-60, 0px 3px 25px rgba(0,0,0,.7);
@@ -92,6 +148,16 @@ label {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.numpad--row > div:first-of-type {
+  padding-right: 0;
+}
+.numpad--row > div:nth-of-type(2) {
+  padding: 0 7.5px;
+}
+.numpad--row > div:last-of-type {
+  padding-left: 0;
 }
 
 .numpad--key:active {
@@ -104,11 +170,11 @@ label {
 }
 
 .double {
-  padding: 15px 21px;
+  padding: 15px 0;
 }
 
 .triple {
-  padding: 15px;
+  padding: 15px 0;
 }
 
 .key--primary,.key--primary:active {
@@ -129,6 +195,10 @@ label {
   -webkit-box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
   -moz-box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
   box-shadow: 0px 6px 0px $clover-red, 0px 6px 25px rgba(0,0,0,.7);
+}
+
+#key--charge, .key--primary, .key--secondary {
+  width: 100%;
 }
 
 .key__disabled,.key__disabled:active {
