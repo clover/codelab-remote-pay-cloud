@@ -40,19 +40,19 @@ __________
 
 ## Setup
 
-After you have completed setup of your Clover DevKit, find and install the **Cloud Pay Display** application from the App Market. Go ahead and touch the four corners of the device's screen to exit Cloud Pay Display. When it re-launches programmatically, you'll know you've accomplished the first major milestone of this tutorial — device pairing.
+After you have completed setup of your Clover DevKit, find and install the **Cloud Pay Display** application from the App Market. After launching Cloud Pay Display on your DevKit, go ahead and touch the four corners of the device's screen to exit the app. When it re-launches programmatically, you'll know you've accomplished the first major milestone of this tutorial: device pairing.
 
 `git clone https://github.com/Tulen/cloudpaytut-mock.git` to clone this repository locally. `cd cloudpaytut-mock` to navigate to the project's root directory, and then run `npm install`. This will install `webpack` and `webpack-dev-server`, along with Clover's `remote-pay-cloud` and `remote-pay-cloud-api` libraries, which are needed to connect to and communicate with the device.
 
 Run `npm run build` to start `webpack-dev-server`, which will bundle your files and enable hot reloading.
 
-Open a new browser tab and [login to your Sandbox Developer Account](https://sandbox.dev.clover.com/home/login). Find the **CodeLab: Remote Pay Cloud** app in the App Market. Install and launch it, and Clover will redirect you to https://localhost:8080, including a few query parameters with the redirect which we will explain shortly. You should see our simple Point of Sale system.
+Open a new browser tab and [log in to your Sandbox developer account](https://sandbox.dev.clover.com/home/login). From the drop-down menu in the upper-right corner, select your test merchant. From your test merchant's Clover dashboard, click More Tools to launch the App Market. Find the **CodeLab: Remote Pay Cloud** app in the App Market. Install and launch it, and Clover will redirect you to https://localhost:8080, including a few query parameters with the redirect that we will explain shortly. You should see a simple point-of-sale system.
 
 ![](/public/assets/images/POSLandingScreen.png)
 
-**Note:** These query parameters are required for device pairing. If you do not complete this tutorial in one browser session, you will need to re-launch the CodeLab: Remote Pay Cloud application from the Sandbox Clover website to resume your progress. You will also need to navigate to this project's root directory in your command line, and re-execute `npm run build`.
+**Note:** These query parameters are required for device pairing. If you do not complete this tutorial in one browser session, you will need to re-launch the CodeLab: Remote Pay Cloud application from your test merchant's Clover dashboard to resume your progress. If you stopped webpack-dev-server, you will also need to navigate to this project's root directory in your command line, and re-execute `npm run build`.
 
-Open the project's root directory in your favorite text editor. We will first be editing `index.js`.
+Open the project's `public` directory in your favorite text editor. We will first be editing `index.js`.
 
 ## Getting Started
 
