@@ -4,27 +4,27 @@
 
 ### What We're Building
 
-Today, we're going to integrate a browser-based Point of Sale (POS) system with a Cloud Pay Display-eligible Clover device (Clover Mini, Mobile or Flex).
+Today, we're going to integrate a browser-based point-of-sale (POS) system with a Cloud Pay Display-eligible Clover device (Clover Mini, Mobile, or Flex).
 
-We've already built a simple UI of the POS for you. However, in its current state, the POS cannot connect to a Clover device, and most of the buttons do nothing. In this tutorial, we will be building that functionality.
+We've already built a simple UI for you. However, in its current state, it doesn't do anything. In this tutorial, we'll be building the ability to connect to a Clover device and process transactions.
 
-It is important to complete this tutorial in its entirety. We will be learning both how to build an integration as well as implementation best practices, so you can avoid very common mistakes and edge cases. Ultimately, this tutorial is meant to help you quickly ship quality code to production with confidence.
+It is important to complete this tutorial in its entirety. We will be learning both how to build an integration as well as implementation best practices, so you can avoid common mistakes and edge cases. Ultimately, this tutorial is meant to help you quickly ship quality code to production with confidence.
 
-This tutorial uses the remote-pay-cloud's  [`CloverConnector`](https://clover.github.io/remote-pay-cloud-api/1.4.2/remotepay.ICloverConnector.html) interface to connect to a Clover device and perform operations over the cloud. The CloverConnector provides a consolidated asynchronous interface for your POS to integrate with Clover's customer-facing payment devices.
+This tutorial uses the remote-pay-cloud's  [`CloverConnector`](https://clover.github.io/remote-pay-cloud-api/1.4.2/remotepay.ICloverConnector.html) interface to connect to a Clover device and perform operations via the cloud. The CloverConnector provides a consolidated asynchronous interface for your POS to integrate with Clover's customer-facing payment devices.
 
 ### Prerequisites
 
 We'll assume some familiarity with HTML and JavaScript, but you should be able to follow along even if you haven't used them before.
 
-For the sake of keeping this tutorial lightweight and easy to understand, we are keeping it agnostic of any frontend JavaScript framework. As a result, some adaptation may be required to implement the same behavior into your own POS, depending on your own tech stack.
+For the sake of keeping this tutorial lightweight and easy to understand, we are keeping it agnostic of any frontend JavaScript framework. As a result, some adaptation may be required to implement the same behavior in your own POS, depending on your tech stack.
 
 We recommend reading an [Overview of the Clover Platform](https://docs.clover.com/build/architecture/), including the [Developer Guidelines](https://docs.clover.com/build/developer-guidelines/).
 
-You will need to [order a Clover Developer Kit (DevKit)](https://cloverdevkit.com/) and [set it up](https://docs.clover.com/build/devkit/). An emulator cannot be used, because our Secure Payments application relies on certain aspects of our hardware. Currently, the Clover Mini, Mobile, and Flex are eligible for semi-integration.
+You'll need to [order a Clover Developer Kit (DevKit)](https://cloverdevkit.com/) and [set it up](https://docs.clover.com/build/devkit/). An emulator cannot be used because our Secure Payments application relies on certain aspects of our hardware. Currently, the Clover Mini, Mobile, and Flex are eligible for semi-integration via Cloud Pay Display.
+
+As part of setting up your DevKit, you'll [create a Sandbox developer account](https://sandbox.dev.clover.com/developers) and a test merchant.
 
 Our JavaScript remote-pay-cloud SDK is distributed as an npm package. If you do not already have npm installed, [install it](https://www.npmjs.com/get-npm).
-
-You will need to [set up a Sandbox developer account](https://sandbox.dev.clover.com/developers) and create your test merchant.
 
 ### How to Follow Along
 
@@ -32,7 +32,7 @@ You should keep this document open to follow along while completing the tutorial
 
 ### Help, I'm Stuck!
 
-If you get stuck, check out Clover's [Community support resources](https://community.clover.com/). If you don't find someone with the same question, post a new one, and we'll help you out.
+If you get stuck, check out Clover's [Developer Community](https://community.clover.com/). If you don't find someone with the same question, post a new one, and we'll help you out.
 
 With this out of the way, let's get started!
 
@@ -40,46 +40,46 @@ __________
 
 ## Setup
 
-After you have completed setup of your Clover DevKit, find and install the **Cloud Pay Display** application from the App Market. Go ahead and touch the four corners of the device's screen to exit Cloud Pay Display. When it re-launches programmatically, you'll know you've accomplished the first major milestone of this tutorial — device pairing.
+After you have completed setup of your Clover DevKit, find and install the **Cloud Pay Display** application from the App Market. After launching Cloud Pay Display on your DevKit, go ahead and touch the four corners of the device's screen to exit the app. When it re-launches programmatically, you'll know you've accomplished the first major milestone of this tutorial: device pairing.
 
 `git clone https://github.com/Tulen/cloudpaytut-mock.git` to clone this repository locally. `cd cloudpaytut-mock` to navigate to the project's root directory, and then run `npm install`. This will install `webpack` and `webpack-dev-server`, along with Clover's `remote-pay-cloud` and `remote-pay-cloud-api` libraries, which are needed to connect to and communicate with the device.
 
 Run `npm run build` to start `webpack-dev-server`, which will bundle your files and enable hot reloading.
 
-Open a new browser tab and [login to your Sandbox Developer Account](https://sandbox.dev.clover.com/home/login). Find the **CodeLab: Remote Pay Cloud** app in the App Market. Install and launch it, and Clover will redirect you to https://localhost:8080, including a few query parameters with the redirect which we will explain shortly. You should see our simple Point of Sale system.
+Open a new browser tab and [log in to your Sandbox developer account](https://sandbox.dev.clover.com/home/login). From the drop-down menu in the upper-right corner, select your test merchant. From your test merchant's Clover dashboard, click More Tools to launch the App Market. Find the **CodeLab: Remote Pay Cloud** app in the App Market. Install and launch it, and Clover will redirect you to https://localhost:8080, including a few query parameters with the redirect that we will explain shortly. You should see a simple point-of-sale system.
 
 ![](/public/assets/images/POSLandingScreen.png)
 
-**Note:** These query parameters are required for device pairing. If you do not complete this tutorial in one browser session, you will need to re-launch the CodeLab: Remote Pay Cloud application from the Sandbox Clover website to resume your progress. You will also need to navigate to this project's root directory in your command line, and re-execute `npm run build`.
+**Note:** These query parameters are required for device pairing. If you do not complete this tutorial in one browser session, you will need to re-launch the CodeLab: Remote Pay Cloud application from your test merchant's Clover dashboard to resume your progress. If you stopped webpack-dev-server, you will also need to navigate to this project's root directory in your command line, and re-execute `npm run build`.
 
-Open the project's root directory in your favorite text editor. We will first be editing `index.js`.
+Open the project's `public` directory in your favorite text editor. We will first be editing `index.js`.
 
 ## Getting Started
 
 ### Device Pairing
 
-We'll first need to build the device pairing between our POS and the Clover customer-facing device.
+First, we need to build the device pairing functionality between our POS and the Clover customer-facing device.
 
-The POS has a green 'Connect' button which has a bound `onclick` handler to invoke a `connect()` function that we have defined in `index.js`. We'll make the `connect()` function pair the devices.
+The POS has a green 'Connect' button that has a bound `onclick` handler to invoke a `connect()` function, which we have defined in `index.js`. We'll make the `connect()` function pair the POS and the Clover device.
 
 To successfully `connect()` to the Clover device, we'll require:
 * The `merchant_id`
 * An `access_token`
-* The `targetCloverDomain` - either Clover's Sandbox or Production environment.
-* The `remoteApplicationId` of the POS.
-* The `deviceId` of the Clover device you are connecting to. This is different than the device's serial number, and we'll discuss this more in depth shortly.
-* A `friendlyId` - a human-readable way to identify the current POS. We'll also discuss this more in depth.
+* The `targetCloverDomain`, which will be either Clover's Sandbox or Production environment
+* The `remoteApplicationId` of the POS
+* The `deviceId` of the Clover device you're connecting to. This is different than the device's serial number, and we'll discuss this more in depth shortly.
+* A `friendlyId`, which is a human-readable way to identify the POS. We'll also discuss this more in depth.
 
-The `merchant_id` was passed to your POS as a query parameter when you launched your POS from Clover. We'll grab it using regex, and assign it to a property of the `RemotePayCloudTutorial` object that gets instantiated when the page loads (see `index.html`).
+The `merchant_id` was passed to your POS as a query parameter when you launched your POS from your test merchant's Clover dashboard. We'll grab it using regex, and assign it to a property of the `RemotePayCloudTutorial` object that gets instantiated when the page loads (see `index.html`).
 
 ```diff
 RemotePayCloudTutorial = function() {
-- // TODO: set instance variables for CloverConnector configuration  
+- // TODO: Set instance variables for CloverConnector configuration.
 + this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
 };
 ```
 
-The `access_token` was also passed to your POS as a query parameter. This is because our CodeLab: Remote Pay Cloud application does not have a backend server, so we have configured it to redirect to our POS with an `access_token` rather than a `code`. To read more about how to securely obtain an `access_token` using your own POS's backend server, please reference our [OAuth documentation](https://docs.clover.com/build/oauth-2-0/).
+The `access_token` was also passed to your POS as a query parameter. This is because our CodeLab: Remote Pay Cloud application does not have a backend server, so we have configured it to redirect with an `access_token` rather than a `code`. To read more about how to securely obtain an `access_token` using your own POS's backend server, please reference our [OAuth documentation](https://docs.clover.com/build/oauth-2-0/).
 
 ```diff
 RemotePayCloudTutorial = function() {
@@ -251,8 +251,8 @@ Under the hood, using the `remote-pay-cloud` SDK, this code will instantiate a W
 
 ```diff
 RemotePayCloudTutorial.prototype.connect = function() {
-  // TODO: create a configuration object, a CloverConnector, a 
-  // CloverConnectorListener, and then initialize the connection
+  // TODO: Create a configuration object, a CloverConnector, a 
+  // CloverConnectorListener, and then initialize the connection.
   var deviceId = document.getElementById("select--clover-device-serials").value;
   
   var args = [this, this.remoteApplicationId, clover.BrowserWebSocketImpl.createInstance, new clover.ImageUtil(), this.targetCloverDomain, this.access_token, new clover.HttpSupport(XMLHttpRequest), this.merchant_id, deviceId, this.friendlyId];
@@ -341,7 +341,7 @@ In `index.js`:
 
 ```diff
 RemotePayCloudTutorial.prototype.showHelloWorld = function() {
--  // TODO: show a 'Hello World' message on the device
+-  // TODO: Show a 'Hello World' message on the device.
 +  this.cloverConnector.showMessage("Hello World");
 };
 ```
@@ -381,7 +381,7 @@ In `index.js`:
 
 ```diff
 RemotePayCloudTutorial.prototype.performSale = function(amount) {
--  // TODO: use the CloverConnector to initiate a sale
+-  // TODO: Use the CloverConnector to initiate a sale.
 +  var saleRequest = new clover.remotepay.SaleRequest();
 +  saleRequest.setAmount(amount);
 +  saleRequest.setExternalId(clover.CloverID.getNewId());
