@@ -1,85 +1,129 @@
 <html>
-  <head>
-    <title>Remote Pay Cloud Example</title>
-    <script src="./bundle.js" type="application/javascript"></script>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
-        crossorigin="anonymous">
-    <link rel="stylesheet" href="./assets/main.css">
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-  </head>
-  <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6 logo--container">
-          <img src="./assets/clover_logo.png" class="logo"></img>
+<head>
+  <title>Remote Pay Cloud Example</title>
+  <script src="./bundle.js" type="application/javascript"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
+  crossorigin="anonymous">
+  <link rel="stylesheet" href="./assets/main.css">
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 logo--container">
+        <img src="./assets/clover_logo.png" class="logo"></img>
+      </div> 
+      <div class="col-10 offset-1 offset-md-0 col-md-6 col-lg-5 status--container">
+        <h3 class="status" id="status-message"><span class="red" id="default-status-message">Not connected to your Clover device. Please connect to perform an action.</span></h3>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-10 offset-1 col-md-5 offset-md-0 col-lg-4 offset-lg-1 pos--container tdshadow top24">
+        <div class="col-12 p-0 mt-2">
+          <!-- TODO: insert select element here -->
         </div> 
-        <div class="col-md-5 status--container">
-          <h3 class="status" id="status-message"> Not connected to your Clover device. Please connect to perform an action. </h3>
+        
+        <div class="row">
+          <div class="col-12">
+            <button class="numpad--key key--primary p-0 mx-0" id="key--connect">
+              Connect
+            </button>
+          </div>
         </div>
         
-        <!-- TODO: insert canvas element here -->
-        
-      </div>
-      
-      <div class="row">
-        <div class="pos--container tdshadow">
-          
-          <!-- TODO: insert select element here -->
-                    
-          <div class="row">
-            <div class="numpad--key key--primary" id="key--connect">
-              Connect
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="numpad--key key--secondary" id="key--hello-world">
+        <div class="row">
+          <div class="col-12">
+            <div class="numpad--key key--secondary p-0 mx-0" id="key--hello-world">
               Hello World
             </div>
-          </div> 
-        </div>
-          
-        <div class="pos--container tdshadow">
-          <div class="display row">
-            <div class="col-xs-12">
-              <span class="pull-left">$</span><span class="pull-right" id="total">0.00</span>
-            </div>
           </div>
-          <div class="container numpad row">
-            <div class="numpad--row row">
+        </div> 
+        
+        <!-- TODO: insert canvas element here -->
+      </div>
+      
+      <div class="pos--container tdshadow top24 col-10 col-md-6 col-lg-5 offset-1 mb-4">
+        <div class="display row mt-2">
+          <div class="col-12 space-between">
+            <span>$</span>
+            <span id="total">0.00</span>
+          </div>
+        </div>
+        <div class="container numpad">
+          <div class="row numpad--row">
+            <div class="col-4">
               <div class="numpad--key" id="key--1">1</div>
-              <div class="numpad--key " id="key--2">2</div>
-              <div class="numpad--key" id="key--3">3</div>
-            </div>
-            <div class="numpad--row row">
-              <div class="numpad--key" id="key--4">4</div>
-              <div class="numpad--key" id="key--5">5</div>
-              <div class="numpad--key" id="key--6">6</div>
-            </div>
-            <div class="numpad--row row">
-              <div class="numpad--key" id="key--7">7</div>
-              <div class="numpad--key" id="key--8">8</div>
-              <div class="numpad--key" id="key--9">9</div>
-            </div>
-            <div class="numpad--row row">
-              <div class="numpad--key double" id="key--00">00</div>
-              <div class="numpad--key" id="key--0">0</div>
-              <div class="numpad--key triple" id="key--del">Del</div>
             </div>
             
-            <!-- TODO: Create a checkbox for manual card entry -->
-          
-            <div class="numpad--row row">
-              <div class="numpad--key key--primary" id="key--charge">Charge</div>
+            <div class="col-4">
+              <div class="numpad--key " id="key--2">2</div>
             </div>
+            
+            <div class="col-4">
+              <div class="numpad--key" id="key--3">3</div>
+            </div>
+          </div>
+          
+          <div class="row numpad--row">
+            <div class="col-4">
+              <div class="numpad--key" id="key--4">4</div>
+            </div>
+            
+            <div class="col-4">
+              <div class="numpad--key" id="key--5">5</div>
+            </div>
+            
+            <div class="col-4">
+              <div class="numpad--key" id="key--6">6</div>
+            </div>
+          </div>
+          
+          <div class="row numpad--row">
+            <div class="col-4">
+              <div class="numpad--key" id="key--7">7</div>
+            </div>
+            
+            <div class="col-4">
+              <div class="numpad--key" id="key--8">8</div>
+            </div>
+            
+            <div class="col-4">
+              <div class="numpad--key" id="key--9">9</div>
+            </div>
+          </div>
+          
+          <div class="row numpad--row">
+            <div class="col-4">
+              <div class="numpad--key double" id="key--00">00</div>
+            </div>
+            
+            <div class="col-4">
+              <div class="numpad--key" id="key--0">0</div>
+            </div>
+            
+            <div class="col-4">
+              <div class="numpad--key triple" id="key--del">Del</div>
+            </div>
+          </div>
+          
+          <div class="row form-inline justify-content-center">
+            <div class="col-12">
+              <!-- TODO: Create a checkbox for manual card entry -->
+            </div> 
+            
+            <div class="col-12 form-inline justify-content-center">
+              <button class="numpad--key key--primary" id="key--charge">Charge</button>
+            </div>  
           </div>
         </div>
       </div>
     </div>
-    
-    <script>
-      var remotePayCloudTutorial = new RemotePayCloudTutorial();
-    </script>
-    <script src="./events.js"></script>
-  </body>
+  </div>
+  
+  <script>
+  var remotePayCloudTutorial = new RemotePayCloudTutorial();
+  </script>
+  <script src="./events.js"></script>
+</body>
 </html>
