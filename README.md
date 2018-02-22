@@ -216,7 +216,7 @@ fetch(`${remotePayCloudTutorial.targetCloverDomain}/v3/merchants/${remotePayClou
 });
 ```
 
-**Important:** The remote-pay-cloud SDK was developed for one-to-one pairing between POS and Clover terminal. For best results, do not attempt to pair your POS with multiple Clover devices simultaneously.
+**Important:** The remote-pay-cloud SDK was developed for one-to-one pairing between POS and Clover device. For best results, do not attempt to pair your POS with multiple Clover devices simultaneously.
 
 We now have all of the data that is required to initialize a connection, so let's give the green 'Connect' button functionality. We'll connect to the `deviceId` of the currently selected `option` in the `select` element we previously created. 
 
@@ -229,7 +229,7 @@ RemotePayCloudTutorial.prototype.connect = function() {
 +  var deviceId = document.getElementById("select--clover-device-serials").value;
 +
 +  var args = [this, this.remoteApplicationId, clover.BrowserWebSocketImpl.createInstance, new clover.ImageUtil(), this.targetCloverDomain, this.access_token, new clover.HttpSupport(XMLHttpRequest), this.merchant_id, deviceId, this.friendlyId];
-+  
++
 +  var cloverConnectorFactoryConfiguration = {};
 +  cloverConnectorFactoryConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
 +  var cloverConnectorFactory = clover.CloverConnectorFactoryBuilder.createICloverConnectorFactory(cloverConnectorFactoryConfiguration);
@@ -287,13 +287,13 @@ Let the web page hot reload, select the device serial you would like to connect 
 
 ### Implement a CloverConnectorListener
 
-We canonically refer to the WebSocket connection we've now created as the `CloverConnector` API. In order to send data from your POS to the Clover device, you will invoke methods on the `CloverConnector` instance. You have already become familiar with `CloverConnector#initializeConnection`.
+In order to send data from your POS to the Clover device, you will invoke methods on the `CloverConnector` instance. You've already become familiar with `ICloverConnector.initializeConnection()`.
 
-However, one-way communication is not enough. The device will also need to send payloads of data to your POS through the same WebSocket connection. You'll need to implement a `CloverConnectorListener` to respond to events, keep track of the device's state, and know if transactions succeeded or failed. Our POS will receive information about the Clover device by implementing a number of different callbacks.
+However, one-way communication is not enough. The device also sends payloads of data to your POS through the WebSocket connection. You'll need to implement a `CloverConnectorListener` to respond to events, keep track of the device's state, and know if transactions succeeded or failed. Our POS will receive information about the Clover device by implementing a number of different callbacks.
 
-We will set a `CloverConnectorListener` on our `CloverConnector` instance before initializing the connection. The `remote-pay-cloud` SDK will hook into these `CloverConnectorListener` callbacks at various stages of the device's lifecycle.
+We will set a `CloverConnectorListener` on our `CloverConnector` instance before initializing the connection. It can also be useful to set a pointer to the `cloverConnector` on the `CloverConnectorListener` instance, so that `cloverConnector` methods can be easily invoked from directly within a `CloverConnectorListener` callback.
 
-It can also be useful to set a pointer to the `cloverConnector` on the `CloverConnectorListener` instance, so that `cloverConnector` methods can be easily invoked from directly within a `CloverConnectorListener` callback. We will first implement the `onDeviceConnected` and `onDeviceReady` callbacks, which get invoked sequentially during the device pairing process. In this example, we will simply update the UI to indicate that device pairing has been successful. We will also implement the `onDeviceError` callback, allowing us to render any Clover error messages to the user.
+First, we'll implement the `onDeviceConnected` and `onDeviceReady` callbacks, which are invoked sequentially during the device pairing process. In this example, we will simply update the UI to indicate that device pairing has been successful. We will also implement the `onDeviceError` callback, so that we can render any Clover error messages to the user, as well as `onDeviceDisconnected`.
 
 ```diff
 + this.setCloverConnectorListener(this.cloverConnector);
@@ -306,30 +306,34 @@ It can also be useful to set a pointer to the `cloverConnector` on the `CloverCo
 +      clover.remotepay.ICloverConnectorListener();
 +      this.cloverConnector = connector;
 +    };
-+    
++
 +    CloverConnectorListener.prototype = Object.create(clover.remotepay.ICloverConnectorListener.prototype);
 +    CloverConnectorListener.prototype.constructor = CloverConnectorListener;
-+    
++
 +    CloverConnectorListener.prototype.onDeviceConnected = function() {
 +      document.getElementById("status-message").innerHTML = "Device is connected!";
 +    };
-+    
++
 +    CloverConnectorListener.prototype.onDeviceReady = function() {
 +      document.getElementById("status-message").innerHTML = "Device is connected and ready!";
 +    };
-+    
++
 +    CloverConnectorListener.prototype.onDeviceError = function(deviceErrorEvent) {
 +      window.alert(`Message: ${deviceErrorEvent.getMessage()}`);
 +    };
-+    
++
++    CloverConnectorListener.prototype.onDeviceDisconnected = function() {
++      document.getElementById("status-message").innerHTML = "Device is disconnected!";
++    };
++
 +    this.cloverConnectorListener = new CloverConnectorListener(cloverConnector);
 +    cloverConnector.addCloverConnectorListener(this.cloverConnectorListener);
 +  };
 ```
 
-After the page refreshes, re-connect to your device, and "Device is connected and ready!" should be rendered. `onDeviceConnected` and `onDeviceReady` are occasionally invoked very rapidly, to the point where you may never see the "Device is connected!" message on the DOM. However, slow network speeds can contribute to latency and delay.
+After the page refreshes, re-connect to your device: "Device is connected and ready!" should be rendered. `onDeviceConnected` and `onDeviceReady` are occasionally invoked very rapidly, to the point where you may never see the "Device is connected!" message on the DOM. However, slow network speeds can contribute to latency and delay.
 
-**Important:** *Never* invoke a `CloverConnector` method from within the `CloverConnectorListener#onDeviceReady` callback. This callback is **not** guaranteed to fire only once, and unintended consequences can arise if you start multiple `TransactionRequests` concurrently.
+**Important:** *Never* invoke a `CloverConnector` method from within the `ICloverConnectorListener.onDeviceReady()` callback. This callback is **not** guaranteed to fire only once, and unintended consequences will arise if you start multiple `TransactionRequest`s concurrently.
 
 ### Hello World
 
