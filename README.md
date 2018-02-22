@@ -79,7 +79,7 @@ RemotePayCloudTutorial = function() {
 };
 ```
 
-The `access_token` was also passed to your POS as a query parameter. This is because our CodeLab: Remote Pay Cloud application does not have a backend server, so we have configured it to redirect with an `access_token` rather than a `code`. To read more about how to securely obtain an `access_token` using your own POS's backend server, please reference our [OAuth documentation](https://docs.clover.com/build/oauth-2-0/).
+The `access_token` was also passed to your POS as a query parameter. This is because our CodeLab application does not have a backend server, so we have configured it to redirect with an `access_token` rather than a `code`. To read more about how to securely obtain an `access_token` using your own POS's backend server, please reference our [OAuth documentation](https://docs.clover.com/build/oauth-2-0/).
 
 ```diff
 RemotePayCloudTutorial = function() {
@@ -100,7 +100,7 @@ RemotePayCloudTutorial = function() {
 };
 ```
 
-The `remoteApplicationId` is a constant value for your particular POS, and is used by Clover's Engineering team to track SDK usage, as well as to help triage issues, if you encounter any. Learn more about creating your own `remoteApplicationId` [here](https://docs.clover.com/build/create-your-remote-app-id/). For this tutorial, we'll provide our own `remoteApplicationId` that we have created, but for your own semi-integrated POS, this value needs to be replaced with your own unique `remoteApplicationId`.
+The `remoteApplicationId` is a constant value for your particular POS, and is used by Clover's Engineering team to track SDK usage and investigate issues. Learn more about creating your own `remoteApplicationId` [here](https://docs.clover.com/build/create-your-remote-app-id/). For this tutorial, we'll provide our CodeLab app's `remoteApplicationId`, but in your own semi-integrated POS, this value needs to be replaced with your unique `remoteApplicationId`.
 
 ```diff
 RemotePayCloudTutorial = function() {
@@ -111,7 +111,7 @@ RemotePayCloudTutorial = function() {
 };
 ```
 
-The `friendlyId` is a human-readable way to identify the current POS. Certain error messages will include `friendlyId`s. For example, if a Clover device is currently connected to a POS via semi-integration, and a *different* POS also attempts to initiate a connection, the second POS will receive an error message stating that it is already connected to first POS' `friendlyId`. Let's refer to our POS as the "Primary POS".
+The `friendlyId` is a human-readable way to identify the current POS. Certain error messages will include `friendlyId`s. For example, if a Clover device is currently connected to a POS via Cloud Pay Display, and a *different* POS attempts to initiate a connection, the second POS will receive an error message stating that the Clover device is already connected to first POS' `friendlyId`. Let's refer to our POS as the "Primary POS".
 
 ```diff
 RemotePayCloudTutorial = function() {
@@ -123,7 +123,7 @@ RemotePayCloudTutorial = function() {
 };
 ```
 
-The `deviceId` was *not* passed to us as a query parameter. It's also different from (but associated with) the device's serial number, so the merchant will not be able to manually enter this `deviceId` value, either. As such, we will use Clover's [REST APIs](https://docs.clover.com/build/web-api/) to fetch all of the devices associated with the merchant. We'll render a list of the serial numbers, which can be validated by the merchant to determine which device to connect to, and then we will connect to the `deviceId` of the serial number that the merchant selects.
+The `deviceId` was *not* passed to us as a query parameter. It's also different from (but associated with) the device's serial number, so the merchant will not be able to manually enter this `deviceId` value. As such, we will use Clover's [REST APIs](https://docs.clover.com/build/web-api/) to fetch all of the devices associated with the merchant. We'll render the serial numbers as `option`s, so that the merchant can choose which device to connect to, and then we'll connect to the `deviceId` that's associated with the serial number that the merchant selects.
 
 First, we'll create an empty `select` element above the 'Connect' button that we'll eventually populate with those `option`s.
 
@@ -133,7 +133,7 @@ In `index.html`:
 <div class="row">
   <div class="col-10 offset-1 col-md-5 offset-md-0 col-lg-4 offset-lg-1 pos--container tdshadow top24">
     <div class="col-12 p-0 mt-2">
--      <!-- TODO: insert select element here -->
+-      <!-- TODO: Insert select element here. -->
 +      <select id="select--clover-device-serials">
 +      </select>
     </div> 
