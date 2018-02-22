@@ -32,7 +32,7 @@ You should keep this document open to follow along while completing the tutorial
 
 ### Help, I'm Stuck!
 
-If you get stuck, first check the browser's developer console for any error messages and then try a hard reload. If that doesn't resolve the issue, visit Clover's [Developer Community](https://community.clover.com/). If you don't find someone with the same question, post a new one, and we'll help you out.
+If you get stuck, check the browser's developer console for error messages, try a hard reload, and try exiting the Cloud Pay Display app. If that doesn't resolve the issue, visit Clover's [Developer Community](https://community.clover.com/). If you don't find someone with the same question, post a new one, and we'll help you out.
 
 With this out of the way, let's get started!
 
@@ -283,7 +283,7 @@ Let the web page hot reload, select the device serial you would like to connect 
 
 **Important:** Subsequent hot reloads will sever the connection between our POS and your Clover device. From now on, you will need to use the 'Connect' button to reconnect to your device following every page reload.
 
-**Note:** Did Cloud Pay Display not launch automatically? Ensure that your Clover device is [connected to the Internet](https://help.clover.com/troubleshoot/troubleshoot-your-wireless-network-internet-connection/), and check the browser's developer console for any error messages. If you are still unable to connect to your Clover device, please reference our [Clover Developer Community](https://community.clover.com/).
+**Note:** Did Cloud Pay Display not launch automatically? Ensure that your Clover device is [connected to the Internet](https://help.clover.com/troubleshoot/troubleshoot-your-wireless-network-internet-connection/), and check the browser's developer console for error messages. If you are still unable to connect to your Clover device, please reference our [Clover Developer Community](https://community.clover.com/).
 
 ### Implement a CloverConnectorListener
 
@@ -363,7 +363,7 @@ Now, after re-connecting to the device and waiting for it to be ready, click the
 
 ### Initiating our first Sale
 
-We are now ready to start our first Sale, one of the three transaction types that Clover semi-integration supports. You can find more detailed information about all of our transaction types [here](https://docs.clover.com/build/semi-integration-transaction-types/). Initiating a Sale requires you to generate a `SaleRequest` instance, which inherits from our `TransactionRequest` class. We'll reference both in this section.
+We are now ready to start our first Sale, one of the three transaction types that Clover semi-integration supports. You can learn more about the different transaction types [here](https://docs.clover.com/build/semi-integration-transaction-types/). Initiating a Sale requires you to instantiate a `SaleRequest` instance, which inherits from our `TransactionRequest` class. We'll reference both in this section.
 
 We already have a 'Charge' button, but it does nothing. Let's add some functionality.
 
@@ -381,10 +381,10 @@ chargeKey.addEventListener("click", function() {
 
 We'll interact with the actual `cloverConnector` API in `index.js`. Note that we are setting an `ExternalId` on our `SaleRequest`. An `ExternalId` serves a number of different purposes:
 1. Your POS can use it to associate your `Order` and `Payment` models with Clover's `Payment` objects.
-2. It helps prevent accidental duplicate charges. The Clover device will reject back-to-back `TransactionRequests` that have identical `ExternalId`s.
-3. If you use universally unique `ExternalId`s on every transaction, they can be used as a last resort to help Clover Engineering triage issues that may arise with individual transactions. Please note that providing a Clover `PaymentId` will resolve issues quicker. However, there can be rare instances when your POS only knows the `ExternalId` of a `TransactionRequest`, but not its Clover `PaymentId` (e.g., if connectivity between the POS and Clover device is dropped mid-transaction).
+2. It helps prevent accidental duplicate charges. The Clover device will reject back-to-back `TransactionRequest`s that have identical `ExternalId`s.
+3. If you use universally unique `ExternalId`s on every transaction, they can be used as a last resort to help Clover Engineering investigate a particular transaction. Providing the transaction's Clover `PaymentId` will resolve issues quicker. However, in rare cases, your POS may know the `ExternalId` of a `TransactionRequest`, but not its Clover `PaymentId` (e.g., if connectivity between the POS and Clover device is dropped mid-transaction).
 
-For these reasons, **you should persist both ExternalIds and Clover Payments in your database.** We also highly recommend making your `ExternalId`s universally unique. If your POS is not already generating unique Payment IDs, our SDK provides a utility method to generate a 13-digit alphanumeric UUID. While we can't guarantee universal uniqueness, our utility method has only a 1/1,180,591,620,685,165,462,528 chance of collision.
+For these reasons, **you should persist both the ExternalId and the Clover PaymentId in your database.** We also highly recommend making your `ExternalId`s universally unique. If your POS is not already generating unique payment IDs, our SDK provides a utility method to generate a 13-digit alphanumeric UUID. While we can't guarantee universal uniqueness, our utility method has only a 1/1,180,591,620,685,165,462,528 chance of collision.
 
 The `ExternalId` is required on every `TransactionRequest`, and must have a length between 1 and 32 characters.
 
@@ -402,13 +402,13 @@ RemotePayCloudTutorial.prototype.performSale = function(amount) {
 
 After the webpage reloads, re-establish a connection to the device, enter an amount into the calculator, and press 'Charge'. You should see instructions on the Clover device to process your first card transaction. Swipe/dip/tap to pay, and follow the on-screen instructions.
 
-After you enter your signature on-screen, you might notice the device is "stuck" on this screen. However, this is the intended behavior. The Clover device is waiting for our POS to either approve or reject the customer's signature. The POS, rather than the Clover device, needs to handle this approval/denial, as semi-integrated Clover devices are frequently utilized as being customer-facing only.
+After you sign on-screen, you might notice that the device is "stuck" on this screen. However, this is the intended behavior. The Clover device is waiting for our POS to either approve or reject the customer's signature. The POS, rather than the Clover device, needs to handle this approval/rejection, as semi-integrated Clover devices are customer-facing rather than merchant-facing.
 
 ![](public/assets/images/verifyingSignature.png)
 
 Exit Cloud Pay Display by touching the four corners of the screen, and let's write some more code. We don't want any of our merchants to get "stuck" at this screen.
 
-**Note:** If you never saw this screen, you'll need to adjust your merchant level settings, and initiate another Sale to reach this point. After exiting Cloud Pay Display, open the **Setup** app, navigate to **Payments**, and scroll down to **Signature Settings**. Set the **Signature entry location** to 'On tablet screen' and the **Signature requirement** to 'Always require signature'.
+**Note:** If you never saw this screen, you'll need to adjust your merchant's settings and initiate another Sale to reach this point. After exiting Cloud Pay Display, open the **Setup** app, navigate to **Payments**, and scroll down to **Signature Settings**. Set the **Signature entry location** to 'On tablet screen' and the **Signature requirement** to 'Always require signature'.
 
 ### Handling signature verification
 
@@ -527,7 +527,7 @@ If we're resolving the last challenge in the Challenges array, we want a merchan
 +    for (var i = 0; i < confirmPaymentRequest.getChallenges().length; i++) {
 +      // boolean of whether or not we are resolving the last challenge in the Challenges array
 +      var isLastChallenge = i === confirmPaymentRequest.getChallenges().length - 1;
-+    
++
 +      if (confirm(confirmPaymentRequest.getChallenges()[i].getMessage())) {
 +        if (isLastChallenge) {
 +          this.cloverConnector.acceptPayment(confirmPaymentRequest.getPayment());
