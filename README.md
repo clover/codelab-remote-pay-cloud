@@ -460,7 +460,7 @@ CloverConnectorListener.prototype.onDeviceDisconnected = function() {
 + };
 ```
 
-Then, we'll present the merchant with the choice of accepting or rejecting the customer's signature. Due to the asynchronous nature of drawing on an HTML canvas, we use `setTimeout()` to enqueue this code in the call stack. Otherwise, the confirm dialog will appear before the signature has been drawn.
+Then, we'll present the merchant with the choice of accepting or rejecting the payment in response to the customer's signature. Due to the asynchronous nature of drawing on an HTML canvas, we use `setTimeout()` to enqueue this code in the call stack. Otherwise, the confirm dialog will appear before the signature has been drawn.
 
 ```diff
 CloverConnectorListener.prototype.onVerifySignatureRequest = function(verifySignatureRequest) {
@@ -506,9 +506,9 @@ But don't ship this code to production just yet. Start *another* Sale, proceed t
 
 ### Working with Challenges
 
-By using the same payment card twice in quick succession, we have triggered a `DUPLICATE_CHALLENGE`, which we'll need to resolve in the `CloverConnectorListener#onConfirmPaymentRequest` callback. You can read more about working with Challenges [here](https://docs.clover.com/build/working-with-challenges/). Let's render all possible challenges, and then give the merchant the option to approve, or reject the payment.
+By using the same payment card twice in quick succession, we have triggered a `DUPLICATE_CHALLENGE`, which we'll need to resolve in the `CloverConnectorListener#onConfirmPaymentRequest` callback. You can read more about working with Challenges [here](https://docs.clover.com/build/working-with-challenges/). Let's render all possible challenges and give the merchant the option to approve or reject the payment.
 
-If we're resolving the last challenge in the Challenges array, we want a merchant input of 'OK' to actually accept the Payment.
+If we're resolving the last `Challenge` in the array, we want a merchant input of 'OK' to actually accept the `Payment`.
 
 ```diff
     setTimeout(function() {
@@ -523,7 +523,7 @@ If we're resolving the last challenge in the Challenges array, we want a merchan
 +
 +  CloverConnectorListener.prototype.onConfirmPaymentRequest = function(confirmPaymentRequest) {
 +    for (var i = 0; i < confirmPaymentRequest.getChallenges().length; i++) {
-+      // boolean of whether or not we are resolving the last challenge in the Challenges array
++      // Boolean of whether or not we are resolving the last challenge in the Challenges array
 +      var isLastChallenge = i === confirmPaymentRequest.getChallenges().length - 1;
 +
 +      if (confirm(confirmPaymentRequest.getChallenges()[i].getMessage())) {
@@ -538,7 +538,7 @@ If we're resolving the last challenge in the Challenges array, we want a merchan
 +  };
 ```
 
-Start a new Sale, ensure you're able to resolve the `DUPLICATE_CHALLENGE`, and then let's move on to the next section.
+Start a new Sale, ensure that you're able to resolve the `DUPLICATE_CHALLENGE`, and then let's move on to the next section.
 
 ### Did the Sale Succeed?
 
