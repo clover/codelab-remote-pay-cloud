@@ -28,11 +28,11 @@ Our JavaScript remote-pay-cloud SDK is distributed as an npm package. If you do 
 
 ### How to Follow Along
 
-You should keep this document open to follow along while completing the tutorial in your favorite text editor. As you progress, making and saving JavaScript changes, the POS will hot-reload in your browser of choice.
+You should keep this document open to follow along while completing the tutorial in your favorite text editor. As you progress, making and saving JavaScript changes, the POS will hot reload in your browser of choice.
 
 ### Help, I'm Stuck!
 
-If you get stuck, check out Clover's [Developer Community](https://community.clover.com/). If you don't find someone with the same question, post a new one, and we'll help you out.
+If you get stuck, first check the browser's developer console for any error messages and then try a hard reload. If that doesn't resolve the issue, visit Clover's [Developer Community](https://community.clover.com/). If you don't find someone with the same question, post a new one, and we'll help you out.
 
 With this out of the way, let's get started!
 
@@ -337,7 +337,7 @@ After the page refreshes, re-connect to your device: "Device is connected and re
 
 ### Hello World
 
-We will now continue the age old tradition of writing a simple application to render 'Hello World' as its result. Our POS already has a Hello World button on its DOM, and it already has an `onclick` handler. Let's give it functionality.
+Our POS already has a 'Hello World' button on its DOM, and it already has an `onclick` handler. Let's give it functionality.
 
 In `index.js`:
 
@@ -348,9 +348,18 @@ RemotePayCloudTutorial.prototype.showHelloWorld = function() {
 };
 ```
 
-Refresh the page, re-connect to the device, and wait for the device to be connected and ready. Click the 'Hello World' button, and ensure "Hello World" is rendered on the Clover device. In practice, the `CloverConnector#showMessage` method can be used, for example, to display a custom welcome message or a deal of the day.
+Refresh the page, re-connect to the device, and wait for the device to be connected and ready. Click the 'Hello World' button, and check that "Hello World" is rendered on the Clover device. In practice, the `showMessage` method can be used to display a custom welcome message or deal of the day.
 
-Note that this message will not disappear until another `CloverConnector` method is invoked, or the device/application is disconnected.
+This message will not disappear until another `CloverConnector` method is invoked, so let's invoke `showWelcomeScreen` after a timeout.
+
+```diff
+RemotePayCloudTutorial.prototype.showHelloWorld = function() {
+   this.cloverConnector.showMessage("Hello World");
++  setTimeout(this.cloverConnector.showWelcomeScreen.bind(this.cloverConnector), 3000);
+};
+```
+
+Now, after re-connecting to the device and waiting for it to be ready, click the 'Hello World' button again. After three seconds, the device should transition back to the Welcome screen.
 
 ### Initiating our first Sale
 
