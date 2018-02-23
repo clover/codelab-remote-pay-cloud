@@ -542,9 +542,9 @@ Start a new Sale, ensure that you're able to resolve the `DUPLICATE_CHALLENGE`, 
 
 ### Did the Sale Succeed?
 
-Now, our POS needs to know whether or not the sale succeeded, so we can update our UI accordingly. We've previously used the `SaleRequest` class and `CloverConnector#sale` method to initiate a transaction, and now we'll use the `SaleResponse` class and `CloverConnectorListener#onSaleResponse` method to determine what actually occurred in the transaction.
+Now our POS needs to know whether or not the sale succeeded, so that we can update our UI accordingly (and, in practice, store the transaction results in our database). We've previously used the `SaleRequest` class and `CloverConnector#sale` method to initiate a transaction, and now we'll use the `SaleResponse` class and `CloverConnectorListener#onSaleResponse` method to learn how the transaction concluded.
 
-We'll use the [toLocaleString](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString) method on the JavaScript `Number` class to handle number formatting. Refer to its browser compatibility table, and replace with a different library, or code, depending on your own POS's preferences and browser compatibility requirements.
+We'll use the [toLocaleString](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString) method on the JavaScript `Number` class to handle number formatting. Refer to its browser compatibility table, and replace it with a different library or code, depending on your own POS's preferences and browser compatibility requirements.
 
 In `index.js`:
 
@@ -578,9 +578,9 @@ CloverConnectorListener.prototype.onConfirmPaymentRequest = function(confirmPaym
 
 A `SaleRequest` will now `alert` us when it is complete, and let us know whether or not it succeeded. Refresh the page, process another transaction, and you should see the "Sale was successful...!" dialog.
 
-You'll now probably want to test that failed transactions behave as expected, as well. The test card we have shipped you with your DevKit should *always* succeed. We'll need to use a certain test card in order to simulate a decline at the payment gateway. And we'll need to be able to manually enter the card information onto the Clover device. Let's implement a way to do that, first.
+Now, you'll probably want to test that failed transactions behave as expected, as well. The test card we shipped you with your DevKit should *always* succeed. We'll need to use a certain test card number in order to simulate a decline at the payment gateway. To do that, we'll need to be able to manually enter the card information on the Clover device. Let's implement a way to do that.
 
-First, let's update the POS's UI to allow the merchant to toggle the Clover into prompting for a manually entered card.
+First, let's update the POS's UI to allow the merchant to toggle whether the Clover device will show a 'Type Card' button and permit manual entry.
 
 In `index.html`:
 
@@ -594,7 +594,7 @@ In `index.html`:
   </div> 
 ```
 
-And if that checkbox is checked, we'll initiate a `SaleRequest` with a manual card entry method. In `index.js`:
+And if that checkbox is checked, we'll initiate a `SaleRequest` with all card entry methods enabled. In `index.js`:
 
 ```diff
 RemotePayCloudTutorial.prototype.performSale = function(amount) {
@@ -602,7 +602,7 @@ RemotePayCloudTutorial.prototype.performSale = function(amount) {
   saleRequest.setAmount(amount);
   saleRequest.setExternalId(clover.CloverID.getNewId());
 +  if (document.getElementById("checkbox-manual-card-entry").checked) {
-+    saleRequest.setCardEntryMethods(clover.CardEntryMethods.CARD_ENTRY_METHOD_MANUAL);
++    saleRequest.setCardEntryMethods(clover.CardEntryMethods.ALL);
 +    document.getElementById("checkbox-manual-card-entry").checked = false;
 +  }
   this.cloverConnector.sale(saleRequest);
