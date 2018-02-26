@@ -609,15 +609,19 @@ RemotePayCloudTutorial.prototype.performSale = function(amount) {
 };
 ```
 
-Now, start a manually-entered sale, and enter the following card information when prompted:
+After connecting to the Clover device, check the POS's "Manual card entry?" checkbox, and then start a sale. On the Clover device, tap the "Type Card" button, and enter the following card information:
 
 ```
 PAN: 4005571702222222
 CVV: 123
-Expiration date: Anytime in the future
+Expiration date: Any date in the future
 ```
 
-After proceeding through the entire transaction lifecycle, `CloverConnectorListener#onSaleResponse` should trigger, and `alert` us that the payment has failed. Nice!
+After entering this card information, the Clover device will show a "Transaction Declined" message. Tap the "OK" button and you'll return to the Payment Method Selection screen.
+
+You've just learned that by default, the Clover device will restart the transaction on failure, giving the customer the opportunity to try a different card.
+
+Now tap the back arrow in the upper-left corner of the Payment Method Selection screen. `onSaleResponse` should trigger and `alert` us that the sale request was canceled. Nice!
 
 **Note:** Interchange fees may be higher for manually entered card transactions, compared to swipe/dip/tap. However, we strongly recommend implementing an option in your POS to allow your merchants to enter cards manually. Allowing your merchant to accept manually entered cards can serve as a backup in case the cardholder has a damaged mag stripe or EMV chip.
 
