@@ -423,7 +423,7 @@ In `index.html`:
   </div>
 </div> 
 
-- <!-- TODO: insert canvas element here -->
+- <!-- TODO: Insert canvas element here. -->
 + <div class="row top24 justify-content-center">
 +   <div class="col-10 col-md-4 canvas-container">
 +     <canvas ref="canvas" width="300" height="175" id="verify-signature-canvas"/>
@@ -587,7 +587,7 @@ In `index.html`:
 ```diff
 <div class="row form-inline justify-content-center">
   <div class="col-12">
--    <!-- TODO: Create a checkbox for manual card entry -->
+-    <!-- TODO: Create a checkbox for manual card entry. -->
 +    <label>
 +      <input type="checkbox" id="checkbox-manual-card-entry"/> Manual card entry?
 +    </label>
