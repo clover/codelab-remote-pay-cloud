@@ -578,7 +578,7 @@ CloverConnectorListener.prototype.onConfirmPaymentRequest = function(confirmPaym
 
 A `SaleRequest` will now `alert` us when it is complete, and let us know whether or not it succeeded. Refresh the page, process another transaction, and you should see the "Sale was successful...!" dialog.
 
-Now, you'll probably want to test that failed transactions behave as expected, as well. The test card we shipped you with your DevKit should *always* succeed. We'll need to use a certain test card number in order to simulate a decline at the payment gateway. To do that, we'll need to be able to manually enter the card information on the Clover device. Let's implement a way to do that.
+Now, you'll probably want to test that failed transactions behave as expected, as well. The test card we shipped you with your DevKit should *always* succeed. We'll need to use a particular test card number in order to simulate a decline at the payment gateway. To do that, we'll need to be able to manually enter the card information on the Clover device. Let's implement a way to do that.
 
 First, let's update the POS's UI to allow the merchant to toggle whether the Clover device will show a 'Type Card' button and permit manual entry.
 
@@ -627,14 +627,14 @@ Now tap the back arrow in the upper-left corner of the Payment Method Selection 
 
 ### Handling Partial Auths
 
-A successful card transaction does not necessarily guarantee that the entire `amount` of the `SaleRequest` was authorized. For example, a prepaid Visa/Mastercard Gift Card might only have enough funds to partially cover the full transaction amount. This is called a **Partial Auth**. Your industry might make you more susceptible to Partial Auths, depending on the payment options available to cardholders (e.g., HSA debit cards could also lead to a higher frequency of Partial Auths).
+A successful transaction does not guarantee that the entire `amount` of the `SaleRequest` was authorized. For example, a prepaid Visa/Mastercard card might only have enough funds to partially cover the transaction amount. This is called a **partial auth**. Your industry may be more susceptible to partial auths depending on the payment options available to cardholders (e.g., HSA debit cards may make partial auths more common).
 
-Our POS should determine if a Partial Auth occurred. If it did, a new `SaleRequest` should be initiated, for the amount that was *not* paid for by the first transaction. We will use the `localStorage` API to keep track of the `amount` that was used in the initiating `SaleRequest`, and compare it to the amount that was actually authorized in its corresponding `SaleResponse`.
+Our POS should determine if a partial auth occurred. If it did, a new `SaleRequest` should be initiated for the amount that was *not* paid by the first transaction. We will use the `localStorage` API to keep track of the `amount` that was used in the initiating `SaleRequest`, and compare it to the amount that was actually authorized in its corresponding `SaleResponse`.
 
 In `index.js`:
 
 ```diff
-// perform a sale
+// Perform a sale
 RemotePayCloudTutorial.prototype.performSale = function(amount) {
   var saleRequest = new clover.remotepay.SaleRequest();
   saleRequest.setAmount(amount);
@@ -643,7 +643,7 @@ RemotePayCloudTutorial.prototype.performSale = function(amount) {
     saleRequest.setCardEntryMethods(clover.CardEntryMethods.CARD_ENTRY_METHOD_MANUAL);
     document.getElementById("checkbox-manual-card-entry").checked = false;
   }
-+  // localStorage will store the amount as a string, even though it's an int
++  // localStorage will store the amount as a string, even though it's an int.
 +  window.localStorage.setItem("lastTransactionRequestAmount", amount);
   this.cloverConnector.sale(saleRequest);
 };
@@ -654,38 +654,38 @@ It will be nice to have access to the `performSale` helper method on the `Remote
 ```diff
 + var remotePayCloudTutorial;
 
-// class definition
+// RemotePayCloudTutorial object definition
 RemotePayCloudTutorial = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
   this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
   this.remoteApplicationId = "com.tutorial.remote.pay.cloud";
+  this.friendlyId = "Primary POS";
 +  remotePayCloudTutorial = this;
 };
 ```
 
-And now, we can implement the logic of Partial Auth handling.
+Now we can implement the logic of partial auth handling.
 
 ```diff
 CloverConnectorListener.prototype.onSaleResponse = function(saleResponse) {
   if (saleResponse.getSuccess()) {
-+    // convert the stored string back to an int
++    // Convert the stored string back to an int.
 +    var saleRequestAmount = parseInt(window.localStorage.getItem("lastTransactionRequestAmount"));
-+    // returns an int, so comparison is allowed
++    // Returns an int, so comparison is allowed.
     var saleResponseAmount = saleResponse.getPayment().getAmount();
-+    
-+    // a partial auth occurred if the Payment amount was less than the TransactionRequest amount
++
++    // A partial auth occurred if the Payment amount was less than the TransactionRequest amount.
 +    var wasPartialAuth = saleResponseAmount < saleRequestAmount;
-+    
++
     var formattedSaleResponseAmount = (saleResponseAmount / 100).toLocaleString("en-US", {style: "currency", currency: "USD"});
 +    if (wasPartialAuth) {
 +      var remainingBalance = saleRequestAmount - saleResponseAmount;
 +      var formattedRemainingBalance = (remainingBalance / 100).toLocaleString("en-US", {style: "currency", currency: "USD"});
 +      alert(`Partially authorized for ${formattedSaleResponseAmount} — remaining balance is ${formattedRemainingBalance}. Ask the customer for an additional payment method.`);
-+      
-+      // start another sale for the remaining amount
++
++      // Start another sale for the remaining amount.
 +      remotePayCloudTutorial.performSale(remainingBalance);
-+      
 +    } else {
 +      alert(`Sale was successful for ${formattedSaleResponseAmount}!`);
 +    }
@@ -696,21 +696,21 @@ CloverConnectorListener.prototype.onSaleResponse = function(saleResponse) {
 };
 ```
 
-Just like a decline, we'll need a special card to simulate a Partial Auth. Start a manually-entered sale and when prompted, enter the following card information:
+Just like for a decline, we'll need to use a particular test card number to simulate a partial auth. Start a sale that allows manual card entry and enter the following card information:
 
 ```
 PAN: 4005578003333335
 CVV: 123
-Expiration date: Anytime in the future
+Expiration date: Any date in the future
 ```
 
-This card number should pay for half of the `amount`. You should now see our POS properly handle Partial Auths, and initiate a new `SaleRequest` with the remaining balance. When you are satisfied with how our POS is handling Partial Auths, you can pay for the remaining balance that the Clover is prompting for.
+This card number should pay for half of the `amount`. After tapping "Yes" on the Clover device and finishing the transaction, you should see our POS recognize the partial auth and initiate a new `SaleRequest` for the remaining balance.
 
 
 ## Additional Resources
-Congratulations! You have now integrated a web application to a Clover device, performed multiple Sales, and are handling the most frequent edge cases. However, the `CloverConnector` is capable of so much more. Here are some additional resources to expand on this project, and start integrating these functionalities into your own POS:
+Congratulations! You have now integrated a web-based point-of-sale with a Clover device, performed multiple Sales, and are handling the most frequent edge cases. However, the [CloverConnector](https://clover.github.io/remote-pay-cloud-api/1.4.2/remotepay.ICloverConnector.html) is capable of so much more. Here are links to the API documentation and examples that will help you build more features into your POS.
 
-  * [The remote-pay-cloud SDK repo](https://github.com/clover/remote-pay-cloud/)
+  * [remote-pay-cloud SDK repository](https://github.com/clover/remote-pay-cloud/)
   * [API documentation](http://clover.github.io/remote-pay-cloud/1.4.3/)
   * [API class documentation](https://clover.github.io/remote-pay-cloud-api/1.4.2/)
   * [Additional example apps](https://github.com/clover/remote-pay-cloud-examples)
