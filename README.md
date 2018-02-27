@@ -42,7 +42,7 @@ __________
 
 After you have completed setup of your Clover DevKit, find and install the **Cloud Pay Display** application from the App Market. After launching Cloud Pay Display on your DevKit, go ahead and touch the four corners of the device's screen to exit the app. When it re-launches programmatically, you'll know you've accomplished the first major milestone of this tutorial: device pairing.
 
-`git clone https://github.com/Tulen/cloudpaytut-mock.git` to clone this repository locally. `cd cloudpaytut-mock` to navigate to the project's root directory, and then run `npm install`. This will install `webpack` and `webpack-dev-server`, along with Clover's `remote-pay-cloud` and `remote-pay-cloud-api` libraries, which are needed to connect to and communicate with the device.
+`git clone https://github.com/clover/codelab-remote-pay-cloud.git` to clone this repository locally. `cd codelab-remote-pay-cloud` to navigate to the project's root directory, and then run `npm install`. This will install `webpack` and `webpack-dev-server`, along with Clover's `remote-pay-cloud` and `remote-pay-cloud-api` libraries, which are needed to connect to and communicate with the device.
 
 Run `npm run build` to start `webpack-dev-server`, which will bundle your files and enable hot reloading.
 
