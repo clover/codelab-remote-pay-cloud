@@ -16,6 +16,6 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Tulen/cloudpaytut-mock.git"
+    "url": "git://github.com/clover/codelab-remote-pay-cloud.git"
   }
 }
