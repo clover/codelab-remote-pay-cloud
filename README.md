@@ -118,7 +118,7 @@ RemotePayCloudTutorial = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
   this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
-  this.remoteApplicationId = "com.tutorial.remote.pay.cloud";
+  this.remoteApplicationId = "J279XKWX1K8JY.0GVR7VMS8YCX8";
 + this.friendlyId = "Primary POS";
 };
 ```
