@@ -107,7 +107,7 @@ RemotePayCloudTutorial = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
   this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
-+ this.remoteApplicationId = "J279XKWX1K8JY.0GVR7VMS8YCX8";
++ this.remoteApplicationId = "CLOVERDEV.655VQ41Z9CVF8";
 };
 ```
 
@@ -118,7 +118,7 @@ RemotePayCloudTutorial = function() {
   this.merchant_id = window.location.href.match(/merchant_id=([^&]*)/)[1];
   this.access_token = window.location.href.match(/access_token=([^&]*)/)[1];
   this.targetCloverDomain = window.location.href.includes("localhost") ? "https://sandbox.dev.clover.com" : "https://www.clover.com";
-  this.remoteApplicationId = "J279XKWX1K8JY.0GVR7VMS8YCX8";
+  this.remoteApplicationId = "CLOVERDEV.655VQ41Z9CVF8";
 + this.friendlyId = "Primary POS";
 };
 ```
@@ -716,3 +716,6 @@ Congratulations! You have now integrated a web-based point-of-sale with a Clover
   * [Additional example apps](https://github.com/clover/remote-pay-cloud-examples)
   * [Semi-Integration FAQ](https://community.clover.com/spaces/11/semi-integration.html?topics=FAQ)
   * [Clover Developer Community](https://community.clover.com/index.html)
+
+## Sources
+Wooden background image by Pixeden(hyperlink: https://www.pixeden.com/graphic-web-backgrounds/wood-pattern-background)
