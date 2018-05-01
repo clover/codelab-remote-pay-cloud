@@ -718,4 +718,4 @@ Congratulations! You have now integrated a web-based point-of-sale with a Clover
   * [Clover Developer Community](https://community.clover.com/index.html)
 
 ## Sources
-Wooden background image by Pixeden(hyperlink: https://www.pixeden.com/graphic-web-backgrounds/wood-pattern-background)
+Wooden background image by [Pixeden](https://www.pixeden.com/graphic-web-backgrounds/wood-pattern-background)
