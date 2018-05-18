@@ -8,7 +8,7 @@ Today, we're going to integrate a browser-based point-of-sale (POS) system with 
 
 We've already built a simple UI for you. However, in its current state, it doesn't do anything. In this tutorial, we'll be building the ability to connect to a Clover device and process transactions.
 
-It is important to complete this tutorial in its entirety. We will be learning both how to build an integration as well as implementation best practices, so you can avoid common mistakes and edge cases. Ultimately, this tutorial is meant to help you quickly ship quality code to production with confidence.
+It is important to complete this tutorial in its entirety. We will be learning both how to build an integration as well as implementation best practices, so you can avoid common mistakes and edge cases. The tutorial is comprehensive and may take a few hours for a new developer to complete and understand. Ultimately, this tutorial is meant to help you quickly ship quality code to production with confidence.
 
 This tutorial uses the remote-pay-cloud SDK's  [`CloverConnector`](https://clover.github.io/remote-pay-cloud-api/1.4.2/remotepay.ICloverConnector.html) interface to connect to a Clover device and perform operations via the cloud. The CloverConnector provides a consolidated asynchronous interface for your POS to integrate with Clover's customer-facing payment devices.
 
@@ -497,6 +497,8 @@ CloverConnectorListener.prototype.onVerifySignatureRequest = function(verifySign
 + }.bind(this), 0);
 };
 ```
+
+**Important:** When testing signature behavior, please use a magnetic stripe card (provided with the Clover Dev Kit).
 
 Refresh the web page, reconnect to the Clover device, initiate another Sale, and accept the signature. You have now completed your first `remote-pay-cloud` Sale! 🎉 
 
