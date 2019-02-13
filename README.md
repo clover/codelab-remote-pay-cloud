@@ -1,14 +1,14 @@
 # Clover CodeLab: Remote Pay Cloud
 
-## Before We Start
+## Before You Start
 
-### What We're Building
+### What You'll Build
 
 This codelab shows a simple integration of a browser-based point-of-sale (POS) system with a Cloud Pay Display-compatible Clover device (Clover Mini, Mobile, or Flex). A [Clover Developer Kit (DevKit)](https://cloverdevkit.com/) is required for this tutorial.
 
 The repo includes a simple, prebuilt UI. In its current state, it doesn't do anything. In this tutorial, you'll build the ability to connect to a Clover device and process transactions.
 
-It is important to complete this tutorial in its entirety. You'll  learn how to build an integration, as well as implementation best practices, so you can avoid common mistakes and edge cases. The tutorial is comprehensive and may take a few hours to complete and understand. Ultimately, this tutorial is meant to help you ship quality code to production with confidence.
+It is important to complete this tutorial in its entirety. You'll learn how to build an integration, as well as implementation best practices, so you can avoid common mistakes and edge cases. The tutorial is comprehensive and may take a few hours to complete and understand. Ultimately, this tutorial is meant to help you ship quality code to production with confidence.
 
 This tutorial uses the remote-pay-cloud SDK's  [`CloverConnector`](https://clover.github.io/remote-pay-cloud-api/3.0.0/remotepay.ICloverConnector.html) interface to connect to a Clover device and perform operations via the cloud. The CloverConnector provides a consolidated asynchronous interface for your POS to integrate with Clover's customer-facing payment devices.
 
@@ -58,9 +58,9 @@ Open a new browser tab and [log in to your Sandbox developer account](https://sa
 
 ![](/public/assets/images/POSLandingScreen.png)
 
-**Note:** These query parameters are required for device pairing, and some are generated  when the app is launched for that session. If you do not complete this tutorial in one browser session, you will need to re-launch the CodeLab: Remote Pay Cloud application from your test merchant's Clover dashboard to resume your progress. If you stopped webpack-dev-server, you will also need to navigate to this project's root directory in your command line, and re-execute `npm run build`.
+**Note:** These query parameters are required for device pairing, and some are generated when the app is launched for that session. If you do not complete this tutorial in one browser session, you will need to re-launch the CodeLab: Remote Pay Cloud application from your test merchant's Clover dashboard to resume your progress. If you stopped webpack-dev-server, you will also need to navigate to this project's root directory in your command line, and re-execute `npm run build`.
 
-Open the project's `public` directory in your favorite text editor. We will first be editing `index.js`.
+Open the project's `public` directory in your favorite text editor and open `index.js`.
 
 ## Getting Started
 
@@ -68,7 +68,7 @@ Open the project's `public` directory in your favorite text editor. We will firs
 
 First, we need to build the device pairing functionality between our POS and the Clover customer-facing device.
 
-The POS has a 'Connect' button that has a bound `onclick` handler to invoke a `connect()` function, which we have defined in `public/index.js`. The complete `connect()` function will pair the POS and the Clover device.
+The POS has a 'Connect' button that has a bound `onclick` handler to invoke a `connect()` function, which we have defined in `index.js`. The complete `connect()` function will pair the POS and the Clover device.
 
 To successfully `connect()` to the Clover device, the following parameters are required:
 
@@ -79,7 +79,7 @@ To successfully `connect()` to the Clover device, the following parameters are r
 * The `deviceId` of the Clover device you're connecting to; this is different than the device's serial number
 * A `friendlyId`, which is a human-readable way to identify the POS
 
-The `merchant_id` was passed to your POS as a query parameter when you launched your POS from your test merchant's Clover dashboard. Grab it using regex, and assign it to a property of the `RemotePayCloudTutorial` object that gets instantiated when the page loads (see `public/index.html`).
+The `merchant_id` was passed to your POS as a query parameter when you launched your POS from your test merchant's Clover dashboard. Grab it using regex, and assign it to a property of the `RemotePayCloudTutorial` object that gets instantiated when the page loads (see `index.html`).
 
 ```diff
 RemotePayCloudTutorial = function() {
@@ -99,7 +99,7 @@ RemotePayCloudTutorial = function() {
 
 The `client_id` was also passed to your POS as a query parameter. If you are using a `code` response type, as previously mentioned, you would need this `client_id` to obtain an `access_token`. Since you already have an `access_token`, you can ignore this query parameter.
 
-Clover maintains [different environments for Sandbox and Production](https://docs.clover.com/build/web-apps/#before-you-begin-sandbox-vs-production). The `targetCloverDomain` specifies which one you would like to connect to. This tutorial targets the sandbox environment; the production environment can be used only by your final deployed web application.
+Clover maintains [different environments for Sandbox and Production](https://docs.clover.com/clover-platform/docs/developer-accounts). The `targetCloverDomain` specifies which one you would like to connect to. This tutorial targets the sandbox environment; the production environment can be used only by your final deployed web application.
 
 ```diff
 RemotePayCloudTutorial = function() {
@@ -150,7 +150,7 @@ In `index.html`:
 
 `DOMContentLoaded` is a suitable event for fetching the device information of all Clover devices belonging to the merchant. Once you have that information, create an `<option>` to be rendered in the DOM for each serial number. The `value` of each `<option>` will be the `deviceId`, which is the parameter needed to connect to the device. Add those `<option>`s to the `<select>` we just created.
 
-At the bottom of `public/events.js`:
+At the bottom of `events.js`:
 
 ```diff
   helloWorldKey.addEventListener("click", function() {
@@ -297,11 +297,11 @@ Let the web page hot reload, select the device serial you would like to connect 
 
 In order to send data from your POS to the Clover device, you will invoke methods on the `CloverConnector` instance. You've already become familiar with `CloverConnector#initializeConnection`.
 
-However, one-way communication is not enough. The device also sends payloads of data to your POS through the WebSocket connection. You'll need to implement a `CloverConnectorListener` to respond to events, keep track of the device's state, and know if transactions succeeded or failed. Our POS will receive information about the Clover device by implementing a number of different callbacks.
+However, one-way communication is not enough. The device also sends payloads of data to your POS through the WebSocket connection. You'll need to implement a `CloverConnectorListener` to respond to events, keep track of the device's state, and know if transactions succeeded or failed. Your POS will receive information about the Clover device by implementing a number of different callbacks.
 
-We will set a `CloverConnectorListener` on our `CloverConnector` instance before initializing the connection. It can also be useful to set a pointer to the `cloverConnector` on the `CloverConnectorListener` instance, so that `cloverConnector` methods can be easily invoked from directly within a `CloverConnectorListener` callback.
+This example sets a `CloverConnectorListener` on the `CloverConnector` instance before initializing the connection. It can also be useful to set a pointer to the `cloverConnector` on the `CloverConnectorListener` instance, so that `cloverConnector` methods can be easily invoked from directly within a `CloverConnectorListener` callback.
 
-First, we'll implement the `onDeviceConnected` and `onDeviceReady` callbacks, which are invoked sequentially during the device pairing process. In this example, we will simply update the UI to indicate that device pairing has been successful. We will also implement the `onDeviceError` callback, so that we can render any Clover error messages to the merchant, as well as `onDeviceDisconnected`.
+First, you should implement the `onDeviceConnected` and `onDeviceReady` callbacks, which are invoked sequentially during the device pairing process. The following code updates the UI to indicate that device pairing was successful. It also implements the `onDeviceError` callback, so that any Clover error messages are shown to the merchant, as well as `onDeviceDisconnected`.
 
 ```diff
 + this.setCloverConnectorListener(this.cloverConnector);
@@ -339,13 +339,13 @@ First, we'll implement the `onDeviceConnected` and `onDeviceReady` callbacks, wh
 +  };
 ```
 
-After the page refreshes, reconnect to your device: "Device is connected and ready!" should be rendered. `onDeviceConnected` and `onDeviceReady` are occasionally invoked very rapidly, to the point where you may never see the "Device is connected!" message on the DOM. However, slow network speeds can contribute to latency and delay.
+After the page refreshes, reconnect to your device. A "Device is connected and ready!" message should appear. `onDeviceConnected` and `onDeviceReady` are occasionally invoked very rapidly, to the point where you may never see the "Device is connected!" message on the DOM. However, slow network speeds can contribute to latency and delay.
 
 **Important:** *Never* invoke a `CloverConnector` method from within the `CloverConnectorListener#onDeviceReady` callback. This callback is **not** guaranteed to fire only once, and unintended consequences will arise if you start multiple `TransactionRequest`s concurrently.
 
 ### Hello World
 
-Our POS already has a 'Hello World' button on its DOM, and it already has an `onclick` handler. Let's give it functionality.
+The POS already has a **Hello World** button on its DOM, and it already has an `onclick` handler. To give it basic functionality, use `cloverConnector#showMessage`.
 
 In `index.js`:
 
@@ -356,9 +356,9 @@ RemotePayCloudTutorial.prototype.showHelloWorld = function() {
 };
 ```
 
-Refresh the page, reconnect to the device, and wait for the device to be connected and ready. Click the 'Hello World' button, and check that "Hello World" is rendered on the Clover device. In practice, the `showMessage` method can be used to display a custom welcome message or deal of the day.
+Refresh the page, reconnect to the device, and wait for the device to be connected and ready. Click **Hello World** and verify that "Hello World" is rendered on the Clover device. In your app, the `showMessage` method can be used to display a custom welcome message or a deal of the day.
 
-This message will not disappear until another `CloverConnector` method is invoked, so let's invoke `showWelcomeScreen` after a timeout.
+This message will not disappear until another `CloverConnector` method is invoked, so let's invoke `showWelcomeScreen` after a three-second timeout.
 
 ```diff
 RemotePayCloudTutorial.prototype.showHelloWorld = function() {
@@ -367,36 +367,35 @@ RemotePayCloudTutorial.prototype.showHelloWorld = function() {
 };
 ```
 
-Now, after reconnecting to the device and waiting for it to be ready, click the 'Hello World' button again. After three seconds, the device should transition back to the Welcome screen.
+Reconnect to the device, wait for it to be ready, and click **Hello World** again. After three seconds, the device should transition back to the Welcome screen.
 
-### Initiating our first Sale
+### Initiating a sale
 
-We are now ready to start our first Sale, one of the three transaction types that Clover semi-integration supports. You can learn more about the different transaction types [here](https://docs.clover.com/build/semi-integration-transaction-types/). Initiating a Sale requires you to instantiate a `SaleRequest` instance, which inherits from our `TransactionRequest` class. We'll reference both in this section.
+You are now ready to start a Sale, one of the three transaction types that Clover semi-integration supports. You can learn more about the different [transaction types](https://docs.clover.com/clover-platform/docs/transaction-types) in the docs. Starting a Sale requires you to instantiate a `SaleRequest`, which inherits from the `TransactionRequest` class.
 
-We already have a 'Charge' button, but it does nothing. Let's add some functionality.
-
-In `events.js`, we'll add functionality to the `onclick` handler, parsing the `total` into an `int`, and attempting to start a Sale:
+The POS already has a **Charge** button, but it does nothing. In `events.js`, add functionality to the `onclick` handler that parses the `total` into an `int` and starts a Sale:
 
 ```diff
 chargeKey.addEventListener("click", function() {
 +  var amount = parseInt(document.getElementById("total").innerHTML.replace(".", ""));
-+  // 'amount' is an int of the number of pennies to charge.
++  // 'amount' is an int of the number of cents to charge.
 +  if (amount > 0) {
 +    remotePayCloudTutorial.performSale(amount);
 +  }
 });
 ```
 
-We'll interact with the actual `cloverConnector` API in `index.js`. Note that we are setting an `ExternalId` on our `SaleRequest`. An `ExternalId` serves a number of different purposes:
+We'll interact with the actual `cloverConnector` API in `index.js`. Note that you must set an `ExternalId` on the `SaleRequest`. The `ExternalId` serves a number of different purposes:
+
 1. Your POS can use it to associate your `Order` and `Payment` models with Clover's `Payment` objects.
 2. It helps prevent accidental duplicate charges. The Clover device will reject back-to-back `TransactionRequest`s that have identical `ExternalId`s.
-3. If you use universally unique `ExternalId`s on every transaction, they can be used as a last resort to help Clover Engineering investigate a particular transaction. Providing the transaction's Clover `PaymentId` will resolve issues quicker. However, in rare cases, your POS may know the `ExternalId` of a `TransactionRequest`, but not its Clover `PaymentId` (e.g., if connectivity between the POS and Clover device is dropped mid-transaction).
+3. If you use universally unique `ExternalId`s on every transaction, they can be used as a last resort to help Clover investigate a particular transaction. Providing the transaction's Clover `PaymentId` will resolve issues quicker. In rare cases, your POS may know the `ExternalId` of a `TransactionRequest`, but not its Clover `PaymentId` (for example, if connectivity between the POS and Clover device is dropped mid-transaction).
 
-For these reasons, **you should persist both the ExternalId and the Clover PaymentId in your database.** We also highly recommend making your `ExternalId`s universally unique. If your POS is not already generating unique payment IDs, our SDK provides a utility method to generate a 13-digit alphanumeric UUID. While we can't guarantee universal uniqueness, our utility method has only a 1/1,180,591,620,685,165,462,528 chance of collision.
+For these reasons, **you should persist both the ExternalId and the Clover PaymentId in your database.** `ExternalId`s should be universally unique to ensure they can be used as references for specific transactions. If your POS is not already generating unique payment IDs, the SDK provides a utility method that generates a 13-digit alphanumeric UUID. While universal uniqueness is not guaranteed, the method has a very low chance of collision.
 
-The `ExternalId` is required on every `TransactionRequest`, and must have a length between 1 and 32 characters.
+The `ExternalId` is required on every `TransactionRequest`, and it must have a length between 1 and 32 characters.
 
-In `index.js`:
+Add the following in `index.js`:
 
 ```diff
 RemotePayCloudTutorial.prototype.performSale = function(amount) {
@@ -408,21 +407,19 @@ RemotePayCloudTutorial.prototype.performSale = function(amount) {
 };
 ```
 
-After the web page reloads, re-establish a connection to the device, enter an amount into the calculator, and press 'Charge'. You should see instructions on the Clover device to process your first card transaction. Swipe/dip/tap to pay, and follow the on-screen instructions.
+After the web page reloads, re-establish a connection to the device, enter an amount into the calculator, and press **Charge**. You should see instructions on the Clover device to process your first card transaction. Use the test card to pay and follow the on-screen instructions.
 
-After you sign on-screen, you might notice that the device is "stuck" on this screen. However, this is the intended behavior. The Clover device is waiting for our POS to either approve or reject the customer's signature. The POS, rather than the Clover device, needs to handle this approval/rejection, as semi-integrated Clover devices are customer-facing rather than merchant-facing.
+After you add a signature and tap **Done**, you might notice that the device is "stuck" on the verification screen. This is the intended behavior. The Clover device is waiting for the POS to either approve or reject the customer's signature. The POS, rather than the Clover device, needs to handle this approval action, as semi-integrated Clover devices are customer-facing, not merchant-facing.
 
 ![](public/assets/images/verifyingSignature.png)
 
-Exit Cloud Pay Display by touching the four corners of the screen, and let's write some more code. We don't want any of our merchants to get "stuck" at this screen.
+Exit Cloud Pay Display by touching the four corners of the screen simultaneously. We don't want any of our merchants to get "stuck" at this screen.
 
-**Note:** If you never saw this screen, you'll need to adjust your merchant's settings and initiate another Sale to reach this point. After exiting Cloud Pay Display, open the **Setup** app, navigate to **Payments**, and scroll down to **Signature Settings**. Set the **Signature entry location** to 'On tablet screen' and the **Signature requirement** to 'Always require signature'.
+**Note:** If you did not see this screen, you'll need to adjust your test merchant's settings and then initiate another Sale to reach this point. After exiting Cloud Pay Display, open the **Setup** app, navigate to **Payments**, and scroll down to **Signature Settings**. Set the **Signature entry location** to 'On tablet screen' and the **Signature requirement** to 'Always require signature'.
 
 ### Handling signature verification
 
-In this section, we'll render the signature captured on the Clover device onto our POS's DOM, and provide the merchant with the option of either accepting or denying it. Let's start by providing a `<canvas>` element that we can write our signature to.
-
-In `index.html`:
+In this section, you'll add code to display the captured signature on the POS and provide the merchant with the option of either accepting or rejecting it. Start by opening `index.html` and adding a `<canvas>` element to contain the signature.
 
 ```diff
 <div class="row">
@@ -441,9 +438,9 @@ In `index.html`:
 + </div>
 ```
 
-Next, we'll need to implement the `CloverConnectorListener#onVerifySignatureRequest` callback that gets invoked at this stage of the transaction lifecycle. In that method, we'll render the signature on the `canvas` element we just created, and then provide the merchant with the option of either approving or rejecting the signature.
+Next, implement the `CloverConnectorListener#onVerifySignatureRequest` callback that gets invoked at this stage of the transaction lifecycle. In that method, render the signature on the `canvas` element, and then provide the merchant with the option of either approving or rejecting the signature.
 
-First, we'll draw the signature. In `index.js`:
+In `index.js`, add the following code:
 
 ```diff
 CloverConnectorListener.prototype.onDeviceDisconnected = function() {
@@ -508,17 +505,17 @@ CloverConnectorListener.prototype.onVerifySignatureRequest = function(verifySign
 };
 ```
 
-**Important:** When testing signature behavior, please use a magnetic stripe card (provided with the Clover Dev Kit).
+**Important:** When testing signature behavior, use the magnetic stripe test card provided with the Clover DevKit.
 
 Refresh the web page, reconnect to the Clover device, initiate another Sale, and accept the signature. You have now completed your first `remote-pay-cloud` Sale! 🎉 
 
-But don't ship this code to production just yet. Start *another* Sale, proceed through the transaction lifecycle using the **same card** that you just used, and you will be presented with this screen, again becoming "stuck". Four-finger exit from Cloud Pay Display, and let's discuss how to proceed.
+But don't ship this code to production just yet. Start *another* Sale, proceed through the transaction lifecycle using the **same card** that you just used, and the device displays the same "stuck" verification screen. Exit Cloud Pay Display using a four-finger tap.
 
 ![](public/assets/images/verifyingPayment.png)
 
 ### Working with Challenges
 
-By using the same payment card twice in quick succession, we have triggered a `DUPLICATE_CHALLENGE`, which we'll need to resolve in the `CloverConnectorListener#onConfirmPaymentRequest` callback. You can read more about working with Challenges [here](https://docs.clover.com/build/working-with-challenges/). Let's render all possible challenges and give the merchant the option to approve or reject the payment.
+A `DUPLICATE_CHALLENGE` is triggered by using the same payment card twice in quick succession. This challenges needs to be handled in the `CloverConnectorListener#onConfirmPaymentRequest` callback. You can read more about working with challenges [here](https://docs.clover.com/build/working-with-challenges/). This sample renders all possible challenges and gives the merchant the option to approve or reject the payment.
 
 If we're resolving the last `Challenge` in the array, we want a merchant input of 'OK' to actually accept the `Payment`.
 
@@ -550,15 +547,15 @@ If we're resolving the last `Challenge` in the array, we want a merchant input o
 +  };
 ```
 
-Start a new Sale, ensure that you're able to resolve the `DUPLICATE_CHALLENGE`, and then let's move on to the next section.
+Start a new Sale and ensure that you're able to resolve the `DUPLICATE_CHALLENGE`.
 
 ### Did the Sale Succeed?
 
-Now our POS needs to know whether or not the sale succeeded, so that we can update our UI accordingly (and, in practice, store the transaction results in our database). We've previously used the `SaleRequest` class and `CloverConnector#sale` method to initiate a transaction, and now we'll use the `SaleResponse` class and `CloverConnectorListener#onSaleResponse` method to learn how the transaction concluded.
+The POS needs to know whether or not the sale succeeded and update the UI accordingly (a production app would also need to store the transaction results in a database). The app uses the `SaleRequest` class and `CloverConnector#sale` method to initiate a transaction. Next, use the `SaleResponse` class and implement the `CloverConnectorListener#onSaleResponse` method to learn how the transaction concluded.
 
-We'll use the [toLocaleString](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString) method on the JavaScript `Number` class to handle number formatting. Refer to its browser compatibility table, and replace it with a different library or code, depending on your own POS's preferences and browser compatibility requirements.
+This example uses the [toLocaleString](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString) method on the JavaScript `Number` class to handle number formatting. Refer to its [browser compatibility table](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString#Browser_compatibility), and replace it with a different library or code, depending on your POS's preferences and browser compatibility requirements.
 
-In `index.js`:
+Add the following code to `index.js`:
 
 ```diff
 CloverConnectorListener.prototype.onConfirmPaymentRequest = function(confirmPaymentRequest) {
@@ -588,13 +585,11 @@ CloverConnectorListener.prototype.onConfirmPaymentRequest = function(confirmPaym
 + };
 ```
 
-A `SaleRequest` will now `alert` us when it is complete, and let us know whether or not it succeeded. Refresh the page, process another transaction, and you should see the "Sale was successful...!" dialog.
+A `SaleRequest` will now `alert` when it is complete and whether or not it succeeded. Refresh the page, process another transaction, and you should see the "Sale was successful...!" dialog.
 
-Now, you'll probably want to test that failed transactions behave as expected, as well. The test card we shipped you with your DevKit should *always* succeed. We'll need to use a particular test card number in order to simulate a decline at the payment gateway. To do that, we'll need to be able to manually enter the card information on the Clover device. Let's implement a way to do that.
+You'll also want to test that failed transactions behave as expected. The test card shipped with your DevKit should *always* succeed. You'll need to manually enter a different test card number in order to simulate a decline at the payment gateway. To do that, you'll need to add a switch to the POS that allows the merchant to toggle whether the Clover device will show a 'Type Card' button and permit manual entry.
 
-First, let's update the POS's UI to allow the merchant to toggle whether the Clover device will show a 'Type Card' button and permit manual entry.
-
-In `index.html`:
+In `index.html`, add a `<label>` element that contains the checkbox:
 
 ```diff
 <div class="row form-inline justify-content-center">
@@ -606,7 +601,7 @@ In `index.html`:
   </div> 
 ```
 
-And if that checkbox is checked, we'll initiate a `SaleRequest` with all card entry methods enabled. In `index.js`:
+ In `index.js`, add a condition so if the checkbox is selected, the `SaleRequest` is initiated with all card entry methods enabled:
 
 ```diff
 RemotePayCloudTutorial.prototype.performSale = function(amount) {
@@ -621,29 +616,29 @@ RemotePayCloudTutorial.prototype.performSale = function(amount) {
 };
 ```
 
-After connecting to the Clover device, check the POS's "Manual card entry?" checkbox, and then start a sale. On the Clover device, tap the "Type Card" button, and enter the following card information:
+You can now test how a declined transaction is handled. Connect to the Clover device, enter an amount, select the **Manual card entry?** checkbox, and then click **Charge** to start a sale. On the Clover device, tap the "Type Card" button, and enter the following card information:
 
 ```
-PAN: 4005571702222222
+Card Number: 4005571702222222
 CVV: 123
 Expiration date: Any date in the future
 ```
 
-After entering this card information, the Clover device will show a "Transaction Declined" message. Tap the "OK" button and you'll return to the Payment Method Selection screen.
+After entering this card information, tap **Done**. The Clover device will show a "Transaction Declined" message. Tap **Done** and you'll return to the payment method selection screen.
 
-You've just learned that by default, the Clover device will restart the transaction on failure, giving the customer the opportunity to try a different card.
+By default, the Clover device restarts the transaction on failure, giving the customer the opportunity to try a different card.
 
-Now tap the back arrow in the upper-left corner of the Payment Method Selection screen. `onSaleResponse` should trigger and `alert` us that the sale request was canceled. Nice!
+Tap the back arrow in the upper-left corner of the payment method selection screen. `onSaleResponse` should trigger an `alert` stating the sale request was canceled.
 
 **Note:** Interchange fees may be higher for manually entered card transactions, compared to swipe/dip/tap. However, we strongly recommend implementing an option in your POS to allow your merchants to enter cards manually. Allowing your merchant to accept manually entered cards can serve as a backup in case the cardholder has a damaged mag stripe or EMV chip.
 
 ### Handling Partial Auths
 
-A successful transaction does not guarantee that the entire `amount` of the `SaleRequest` was authorized. For example, a prepaid Visa/Mastercard card might only have enough funds to partially cover the transaction amount. This is called a **partial auth**. Your industry may be more susceptible to partial auths depending on the payment options available to cardholders (e.g., HSA debit cards may make partial auths more common).
+A successful transaction does not guarantee that the entire `amount` of the `SaleRequest` was authorized. For example, a prepaid card might only have enough funds to partially cover the transaction amount. This is called a **partial auth**. Your industry may be more likely to see partial auths depending on the payment options available to cardholders (for example, HSA debit cards may make partial auths more common).
 
-Our POS should determine if a partial auth occurred. If it did, a new `SaleRequest` should be initiated for the amount that was *not* paid by the first transaction. We will use the `localStorage` API to keep track of the `amount` that was used in the initiating `SaleRequest`, and compare it to the amount that was actually authorized in its corresponding `SaleResponse`.
+The POS should determine if a partial auth occurred. If it did, a new `SaleRequest` should be initiated for the amount that was *not* paid by the first transaction. This example uses the `localStorage` API to hold the `amount` that was used in the initiating `SaleRequest` and compare it to the amount authorized in its corresponding `SaleResponse`.
 
-In `index.js`:
+Add the following in `index.js`:
 
 ```diff
 // Perform a sale
@@ -677,7 +672,7 @@ RemotePayCloudTutorial = function() {
 };
 ```
 
-Now we can implement the logic of partial auth handling.
+Now, implement the logic for partial auth handling.
 
 ```diff
 CloverConnectorListener.prototype.onSaleResponse = function(saleResponse) {
@@ -708,26 +703,26 @@ CloverConnectorListener.prototype.onSaleResponse = function(saleResponse) {
 };
 ```
 
-Just like for a decline, we'll need to use a particular test card number to simulate a partial auth. Start a sale that allows manual card entry and enter the following card information:
+You'll need to use a particular test card number to test your partial auth logic. Start a sale that allows manual card entry and enter the following card information:
 
 ```
-PAN: 4005578003333335
+Card Number: 4005578003333335
 CVV: 123
 Expiration date: Any date in the future
 ```
 
-This card number should pay for half of the `amount`. After tapping "Yes" on the Clover device and finishing the transaction, you should see our POS recognize the partial auth and initiate a new `SaleRequest` for the remaining balance.
+This card number should pay for half of the `amount`. Tap **Yes** on the Clover device and finish the transaction. The POS recognizes the partial auth and initiates a new `SaleRequest` for the remaining balance. Use the test card to finish the transaction
 
 
 ## Additional Resources
-Congratulations! You have now integrated a web-based point-of-sale with a Clover device, performed multiple Sales, and are handling the most frequent edge cases. However, the [CloverConnector](https://clover.github.io/remote-pay-cloud-api/1.4.2/remotepay.ICloverConnector.html) is capable of so much more. Here are links to the API documentation and examples that will help you build more features into your POS.
+Congratulations! You have now integrated a web-based point-of-sale with a Clover device, performed multiple Sales, and handled the most frequent edge cases. However, the [CloverConnector](https://clover.github.io/remote-pay-cloud-api/1.4.2/remotepay.ICloverConnector.html) is capable of so much more. Here are links to the API documentation and examples that will help you build more features into your POS.
 
-  * [remote-pay-cloud SDK repository](https://github.com/clover/remote-pay-cloud/)
-  * [API documentation](http://clover.github.io/remote-pay-cloud/1.4.3/)
-  * [API class documentation](https://clover.github.io/remote-pay-cloud-api/1.4.2/)
-  * [Additional example apps](https://github.com/clover/remote-pay-cloud-examples)
-  * [Semi-Integration FAQ](https://community.clover.com/spaces/11/semi-integration.html?topics=FAQ)
-  * [Clover Developer Community](https://community.clover.com/index.html)
+* [remote-pay-cloud SDK repository](https://github.com/clover/remote-pay-cloud/)
+* [API documentation](http://clover.github.io/remote-pay-cloud/1.4.3/)
+* [API class documentation](https://clover.github.io/remote-pay-cloud-api/1.4.2/)
+* [Additional example apps](https://github.com/clover/remote-pay-cloud-examples)
+* [Semi-Integration FAQ](https://community.clover.com/spaces/11/semi-integration.html?topics=FAQ)
+* [Clover Developer Community](https://community.clover.com/index.html)
 
 ## Sources
 Wooden background image by [Pixeden](https://www.pixeden.com/graphic-web-backgrounds/wood-pattern-background)
