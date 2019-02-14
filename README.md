@@ -236,41 +236,32 @@ RemotePayCloudTutorial.prototype.connect = function() {
 -  // TODO: Create a configuration object, a CloverConnector, a 
 -  // CloverConnectorListener, and then initialize the connection.
 +  var deviceId = document.getElementById("select--clover-device-serials").value;
-+
-+  var args = [this, this.remoteApplicationId, deviceId, this.merchant_id, this.access_token, this.friendlyId];
-+
+
 +  var cloverConnectorFactoryConfiguration = {};
 +  cloverConnectorFactoryConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
 +  var cloverConnectorFactory = clover.CloverConnectorFactoryBuilder.createICloverConnectorFactory(cloverConnectorFactoryConfiguration);
 +
-+  // Instantiate a cloverConnector instance using a list of arguments that must
-+  // be entered in this order.
-+  // In ES6, spread syntax would be a good replacement for .bind.apply();
-+  this.cloverConnector = cloverConnectorFactory.createICloverConnector(new (Function.prototype.bind.apply(clover.WebSocketCloudCloverDeviceConfigurationBuilder, args)));
++  const configBuilder = new clover.WebSocketCloudCloverDeviceConfigurationBuilder(this.remoteApplicationId,
++   deviceId, this.merchant_id, this.access_token);
++  configBuilder.setCloverServer(this.cloverServer);
++  configBuilder.setFriendlyId(this.friendlyId);
++  var cloudConfig = configBuilder.build();  
++
++  this.cloverConnector = cloverConnectorFactory.createICloverConnector(cloudConfig);
 +
 +  this.cloverConnector.initializeConnection();
 };
 ```
 
-This code accomplishes a few tasks. First, it obtains the `deviceId` of the currently selected serial number. Next, it creates an ordered array of arguments required to instantiate a `CloverConnector`
-. Then, it configures the `CloverConnectorFactory` with a property (`clover.CloverConnectorFactoryBuilder.FACTORY_VERSION = clover.CloverConnectorFactoryBuilder.VERSION_12`) to specify the current version of the `CloverConnector`. Finally, it instantiates the `CloverConnector` with both the `args` and the help of JavaScript's `apply` method, and initializes its connection.
+This code accomplishes a few tasks. First, it obtains the `deviceId` of the currently selected serial number. Next, it configures the `CloverConnectorFactory` with a property (`clover.CloverConnectorFactoryBuilder.FACTORY_VERSION = clover.CloverConnectorFactoryBuilder.VERSION_12`) to specify the current version of the `CloverConnector`. Then, it builds the `cloudConfig` object with the four required parameters, as well as the `cloverServer` and `friendlyId`. Finally, it instantiates the `CloverConnector` with the `cloudConfig` and initializes the connection.
 
 When `cloverConnector.initializeConnection()` is called, the remote-pay-cloud SDK instantiates a WebSocket connection to the Clover cloud. To follow WebSocket best practices, your app needs to properly dispose of resources when the merchant navigates to a different page, refreshes the current page, or closes the tab/window. [window.onbeforeunload](https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload) is the proper `WindowEventHandler` to handle all of these events.
 
 ```diff
 RemotePayCloudTutorial.prototype.connect = function() {
   var deviceId = document.getElementById("select--clover-device-serials").value;
-  
-  var args = [this, this.remoteApplicationId, deviceId, this.merchant_id, this.access_token, this.friendlyId];
-
-  var cloverConnectorFactoryConfiguration = {};
-  cloverConnectorFactoryConfiguration[clover.CloverConnectorFactoryBuilder.FACTORY_VERSION] = clover.CloverConnectorFactoryBuilder.VERSION_12;
-  var cloverConnectorFactory = clover.CloverConnectorFactoryBuilder.createICloverConnectorFactory(cloverConnectorFactoryConfiguration);
-  
-  // Instantiate a cloverConnector instance using a list of arguments that must
-  // be entered in this order.
-  // In ES6, spread syntax would be a good replacement for .bind.apply();
-  this.cloverConnector = cloverConnectorFactory.createICloverConnector(new (Function.prototype.bind.apply(clover.WebSocketCloudCloverDeviceConfigurationBuilder, args)));
+  ...
+  this.cloverConnector = cloverConnectorFactory.createICloverConnector(cloudConfig);
 
 + this.setDisposalHandler();
   this.cloverConnector.initializeConnection();
