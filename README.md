@@ -715,11 +715,11 @@ This card number should pay for half of the `amount`. Tap **Yes** on the Clover 
 
 
 ## Additional Resources
-Congratulations! You have now integrated a web-based point-of-sale with a Clover device, performed multiple Sales, and handled the most frequent edge cases. However, the [CloverConnector](https://clover.github.io/remote-pay-cloud-api/1.4.2/remotepay.ICloverConnector.html) is capable of so much more. Here are links to the API documentation and examples that will help you build more features into your POS.
+Congratulations! You have now integrated a web-based point-of-sale with a Clover device, performed multiple Sales, and handled the most frequent edge cases. However, the [CloverConnector](https://clover.github.io/remote-pay-cloud-api/3.0.1/remotepay.ICloverConnector.html) is capable of so much more. Here are links to the API documentation and examples that will help you build more features into your POS.
 
 * [remote-pay-cloud SDK repository](https://github.com/clover/remote-pay-cloud/)
-* [API documentation](http://clover.github.io/remote-pay-cloud/1.4.3/)
-* [API class documentation](https://clover.github.io/remote-pay-cloud-api/1.4.2/)
+* [API documentation](http://clover.github.io/remote-pay-cloud/3.0.1/)
+* [API class documentation](https://clover.github.io/remote-pay-cloud-api/3.0.1/)
 * [Additional example apps](https://github.com/clover/remote-pay-cloud-examples)
 * [Semi-Integration FAQ](https://community.clover.com/spaces/11/semi-integration.html?topics=FAQ)
 * [Clover Developer Community](https://community.clover.com/index.html)
