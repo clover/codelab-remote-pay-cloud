@@ -10,7 +10,7 @@ The repo includes a simple, prebuilt UI. In its current state, it doesn't do any
 
 It is important to complete this tutorial in its entirety. You'll learn how to build an integration, as well as implementation best practices, so you can avoid common mistakes and edge cases. The tutorial is comprehensive and may take a few hours to complete and understand. Ultimately, this tutorial is meant to help you ship quality code to production with confidence.
 
-This tutorial uses the remote-pay-cloud SDK's  [`CloverConnector`](https://clover.github.io/remote-pay-cloud-api/3.0.0/remotepay.ICloverConnector.html) interface to connect to a Clover device and perform operations via the cloud. The CloverConnector provides a consolidated asynchronous interface for your POS to integrate with Clover's customer-facing payment devices.
+This tutorial uses the remote-pay-cloud SDK's  [`CloverConnector`](https://clover.github.io/remote-pay-cloud-api/3.0.1/remotepay.ICloverConnector.html) interface to connect to a Clover device and perform operations via the cloud. The CloverConnector provides a consolidated asynchronous interface for your POS to integrate with Clover's customer-facing payment devices.
 
 ### Prerequisites
 
