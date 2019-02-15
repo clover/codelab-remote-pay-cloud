@@ -50,27 +50,4 @@ document.addEventListener("DOMContentLoaded", function() {
   helloWorldKey.addEventListener("click", function() {
     remotePayCloudTutorial.showHelloWorld();
   });
-
-  fetch(`${remotePayCloudTutorial.cloverServer}/v3/merchants/${remotePayCloudTutorial.merchant_id}/devices?access_token=${remotePayCloudTutorial.access_token}`)
-.then(function(response) {
-  return response.json();
-})
-.then(function(data) {
-  var select = document.getElementById("select--clover-device-serials");
-
-  data.elements.forEach(function(device) {
-    if (device.serial === "unknown") {
-      // Exclude Clover emulators.
-      return;
-    } else {
-      var option = document.createElement("option");
-      option.text = device.serial;
-      option.value = device.id;
-      select.add(option);
-    }
-  });
-})
-.catch(function(error) {
-  window.alert(error.toString());
-});
 });
