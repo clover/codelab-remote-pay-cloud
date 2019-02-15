@@ -12,7 +12,7 @@ RemotePayCloudTutorial.prototype.showHelloWorld = function() {
 // Define the connect() function. This is invoked onclick of the green 'Connect' button.
 RemotePayCloudTutorial.prototype.connect = function() {
   // TODO: Create a configuration object, a CloverConnector, a 
-  // CloverConnectorListener, and then initialize the connection. 
+  // CloverConnectorListener, and then initialize the connection.
 };
 
 // Perform a sale
