@@ -702,7 +702,7 @@ CVV: 123
 Expiration date: Any date in the future
 ```
 
-This card number should pay for half of the `amount`. Tap **Yes** on the Clover device and finish the transaction. The POS recognizes the partial auth and initiates a new `SaleRequest` for the remaining balance. Use the test card to finish the transaction
+This card number should pay for half of the `amount`. Tap **Yes** on the Clover device and finish the transaction. The POS recognizes the partial auth and initiates a new `SaleRequest` for the remaining balance. Use the test card to finish the transaction.
 
 
 ## Additional Resources
