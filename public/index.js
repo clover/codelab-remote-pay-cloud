@@ -1,6 +1,4 @@
 var clover = require("remote-pay-cloud");
-var sdk = require("remote-pay-cloud-api");
-
 
 // RemotePayCloudTutorial object definition
 RemotePayCloudTutorial = function() {
