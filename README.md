@@ -506,7 +506,7 @@ But don't ship this code to production just yet. Start *another* Sale, proceed t
 
 ### Working with Challenges
 
-A `DUPLICATE_CHALLENGE` is triggered by using the same payment card twice in quick succession. This challenges needs to be handled in the `CloverConnectorListener#onConfirmPaymentRequest` callback. You can read more about working with challenges [here](https://docs.clover.com/build/working-with-challenges/). This sample renders all possible challenges and gives the merchant the option to approve or reject the payment.
+A `DUPLICATE_CHALLENGE` is triggered by using the same payment card twice in quick succession. This challenges needs to be handled in the `CloverConnectorListener#onConfirmPaymentRequest` callback. You can read more about working with challenges [here](https://docs.clover.com/clover-platform/docs/working-with-challenges). This sample renders all possible challenges and gives the merchant the option to approve or reject the payment.
 
 If resolving the last `Challenge` in the array, a merchant input of **OK** should actually accept the `Payment`.
 
