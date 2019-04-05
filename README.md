@@ -237,7 +237,7 @@ RemotePayCloudTutorial.prototype.connect = function() {
 +
 +  const configBuilder = new clover.WebSocketCloudCloverDeviceConfigurationBuilder(this.remoteApplicationId,
 +   deviceId, this.merchant_id, this.access_token);
-+  configBuilder.setCloverServer(this.cloverServer);
++  configBuilder.setCloverServer(this.targetCloverDomain);
 +  configBuilder.setFriendlyId(this.friendlyId);
 +  var cloudConfig = configBuilder.build();  
 +
