@@ -183,46 +183,40 @@ At the bottom of `events.js`:
 
 **Important:** Getting data from the `/devices` endpoint requires the *MERCHANT_R* permission. When you installed the Codelab app to your test merchant account, you granted the app this permission. Without it, you would have received a `401 Unauthorized` response. Read more about properly configuring permissions in your own POS [here](https://docs.clover.com/clover-platform/docs/permissions).
 
-**Note:** In the above implementation, you created an `<option>` for each of the merchant's devices (except [emulators](https://docs.clover.com/build/android-emulator-setup/)). However, you may want to only render `<option>`s for the Clover devices compatible with Cloud Pay Display (currently, Clover Mini, Mobile, and Flex), and exclude other devices (currently, Clover Station and Clover Station 2018). In that case, the following code snippet could be used. As Clover continues to develop new hardware, we may release additional devices that are not Cloud Pay Display compatible. As a result, the following code is **not future-proof**, should be used at your own risk, and might require patching in the future. Only use this code snippet in your POS if you understand the associated risks.
+**Note:** In the above implementation, you created an `<option>` for each of the merchant's devices (except [emulators](https://docs.clover.com/build/android-emulator-setup/)). However, you may want to only render `<option>`s for the Clover devices compatible with Cloud Pay Display (currently, Clover Mini, Mobile, and Flex), and exclude other devices (currently, Clover Station and Clover Station 2018). In that case, the following code snippet could be used.
+
+As Clover continues to develop new hardware, we may release additional devices that are Cloud Pay Display compatible. As a result, the following code is **not future-proof** and might require patching in the future. To patch the code snippet, update the `eligibleDevicesFirstThree` array with the first three characters of the serial number of the new compatible device.
 
 ```javascript
 fetch(`${remotePayCloudTutorial.targetCloverDomain}/v3/merchants/${remotePayCloudTutorial.merchant_id}/devices?access_token=${remotePayCloudTutorial.access_token}`)
-.then(function(response) {
-  return response.json();
-})
-.then(function(data) {
-  var select = document.getElementById("select--clover-device-serials");
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(data) {
+    var select = document.getElementById("select--clover-device-serials");
 
-  data.elements.forEach(function(device) {
-    // Currently, Clover Mobile, Mini, and Flex are compatible with Cloud Pay Display.
-    // Their serial numbers begin with C02, C03, and C04, respectively.
-    var serialFirstThree = device.serial.slice(0, 3);
+    data.elements.forEach(function(device) {
+      // Currently, Clover Mobile, Mini, and Flex are compatible with Cloud Pay Display.
+      // Their serial numbers begin with C02, C03, and C04, respectively.
+      var eligibleDevicesFirstThree = ["C02", "C03", "C04"];
+      var serialFirstThree = device.serial.slice(0, 3);
 
-    // Clover Station and Clover Station 2018 have serial numbers that begin with
-    // C01 and C05. They will likely never use Cloud Pay Display
-    // because they are not the best form factors for a customer-facing screen.
-    // Additionally, Clover emulators have a serial of 'unknown' or begin with 'EMULATOR'.
+      // Clover Station and Clover Station 2018 have serial numbers that begin with
+      // C01 and C05. They will likely never use Cloud Pay Display
+      // because they are not the best form factors for a customer-facing screen.
+      // Additionally, Clover emulators have a serial of 'unknown' or begin with 'EMULATOR'.
 
-    var ineligibleDevicesFirstThree = ["C01", "C05", "unk", "EMU"];
-    if (ineligibleDevicesFirstThree.includes(serialFirstThree)) {
-      // Exclude Clover Stations, Clover Station 2018s, and Clover emulators.
-      return;
-    } else {
-      var option = document.createElement("option");
-      option.text = device.serial;
-      option.value = device.id;
-      select.add(option);
-    }
-
-    // As Clover continues to develop new hardware,
-    // we may release additional devices that are not Cloud Pay Display eligible.
-    // This code block is not future-proof and
-    // should only be used at your own risk.
+      if (eligibleDevicesFirstThree.includes(serialFirstThree)) {
+        var option = document.createElement("option");
+        option.text = device.serial;
+        option.value = device.id;
+        select.add(option);
+      }
+    });
+  })
+  .catch(function(error) {
+    window.alert(error.toString());
   });
-})
-.catch(function(error) {
-  window.alert(error.toString());
-});
 ```
 
 **Important:** The remote-pay-cloud SDK was developed for one-to-one pairing between POS and Clover device. For best results, do not attempt to pair your POS with multiple Clover devices simultaneously.
