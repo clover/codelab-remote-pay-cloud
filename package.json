@@ -8,7 +8,7 @@
     "build": "webpack & webpack-dev-server --hot --inline"
   },
   "dependencies": {
-    "remote-pay-cloud": "~4.0.0",
+    "remote-pay-cloud": "^4.1.2",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.0"
   },
